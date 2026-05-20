@@ -576,6 +576,96 @@ const ADMIN_EMAIL = 'maryandrioli@gmail.com';
 const ADMIN_SENHA = '123mary';
 const SENHA_PADRAO = 'quatroPs*';
 
+/* Participantes pré-cadastrados (garante login em qualquer dispositivo, senha iec2026) */
+const PARTICIPANTES = [
+  ['Emidio Manoel','emidio.manoel.adv@gmail.com'],
+  ['Simonita','simonita.ads@gmail.com'],
+  ['Socorrinha Costa','socorrinhacosta.sc@gmail.com'],
+  ['Janete Clea','janete.clea@hotmail.com'],
+  ['Mirlane','mirlanerbor@gmail.com'],
+  ['Viviane Cardoso','viviane.cardoso@pedroleopoldo.mg.gov.br'],
+  ['J S Pereira','jspereira@pedroleopoldo.mg.gov.br'],
+  ['Erica','ericadbl432@gmail.com'],
+  ['Kellen Roberta Candido','kellen.robertacandido@gmail.com'],
+  ['Robson Cruz','prof.robson.cruz@gmail.com'],
+  ['Sandra Remigio','profsandraremigio@gmail.com'],
+  ['Rosemere','rosemereeducacao@gmail.com'],
+  ['Renatha Scoralick','renathascoralick@gmail.com'],
+  ['Pedagoga','pedagoga8719@gmail.com'],
+  ['Renata Brito Carvalho','renatabritocarvalho@gmail.com'],
+  ['Fernando Andre','fernandoandre18@gmail.com'],
+  ['Jacque Lima Souza','jacquelimasouza@gmail.com'],
+  ['Leo Pereira','leopereirapedagogo@gmail.com'],
+  ['Taia Brito','taiasnbrito@gmail.com'],
+  ['Amanda Delphin','amanda.sdelphin@gmail.com'],
+  ['Naiza','opnaiza@gmail.com'],
+  ['Ismael Bahia','ismaelbahia290@gmail.com'],
+  ['Fatima Ludy','fatimaandludy@gmail.com'],
+  ['Kilna Moura','kilnamoura@gmail.com'],
+  ['Marcia','br.marcia83@gmail.com'],
+  ['Amanda','amandaprof234@gmail.com'],
+  ['Cintia Santos','cintiasantossme26@gmail.com'],
+  ['Patricia Souza Oliver','patriciasouzaoliver@hotmail.com'],
+  ['Geceoni','geceoni.j@escola.pr.gov.br'],
+  ['Yara Scheidweiler','yara.scheidweiler@escola.pr.gov.br'],
+  ['Solange','solangefv1981@gmail.com'],
+  ['Cicero','cicerorfn@gmail.com'],
+  ['Rosimere Oliveira','rosimere.oliveira@prof.caruaru.g12.br'],
+  ['Polyana Pereira','polyana.pereira@prof.caruaru.g12.br'],
+  ['Neto Biologo','neto.biologo@hotmail.com'],
+  ['Rayara Beltrao','rayarabeltrao2019@gmail.com'],
+  ['Tatiane Tomaz','tatianef.tomaz@yahoo.com.br'],
+  ['Eliane','soaeliane@gmail.com'],
+  ['Lea Correa Marques','lea.correa.marques@gmail.com'],
+  ['Edmar','edmarsj2025@gmail.com'],
+  ['Guti','gutiners@gmail.com'],
+  ['Glauber Augusto da Costa Coelho','glauberaugustodacostacoelho@edu.saoluis.ma.gov.br'],
+  ['Erotildes Pleite','erotildespleite35@gmail.com'],
+  ['Tania Lemes','tanialemes@gmail.com'],
+  ['Adriana Silva Barros','adriana.silvabarros@gmail.com'],
+  ['Maitê','maitbt45@gmail.com'],
+  ['Laely Nascimento','laelynascimento@gmail.com'],
+  ['Alle Dias','alledias00@gmail.com'],
+  ['Tecnologias Curitiba','tecnologias@curitiba.pr.gov.br'],
+  ['Luc Biascaia','lucbiascaia@educacao.curitiba.pr.gov.br'],
+  ['Poliana Freire','poliana.freire@gmail.com'],
+  ['Audaci','audaciprof10@gmail.com'],
+  ['Jhosyane Souza','souzajhosyane@gmail.com'],
+  ['Marcia (Recife)','marcia.626920@prof.educ.rec.br'],
+  ['Ires Silvestre','iressilvestre@gmail.com'],
+  ['Ely','ely.941966@prof.educ.rec.br'],
+  ['Jurema Brito','jurema.brito@prof.educ.rec.br'],
+  ['Luciana Firmo','luciana.firmo@gmail.com'],
+  ['Vania Farias','fariasvania269@gmail.com'],
+  ['Linne Barbosa','linnebarbosa@gmail.com'],
+  ['Juliana Mory','julianamorym@gmail.com'],
+  ['Bianchi','bianchi.14@gmail.com'],
+  ['Marcy Candido','marcycandido10@gmail.com'],
+  ['Neite','neite.12gere@educ.al.gov.br'],
+  ['Elaine','elaine.rbac@gmail.com'],
+  ['Vanderson Mota','motavanderson@gmail.com'],
+  ['Roberto Tite','robertotite9gere@gmail.com'],
+  ['Tamara Belmira','tamarabelmira.rbac@gmail.com'],
+  ['Dea','dea.educacao.al@gmail.com'],
+  ['Fabricia','fabriciapluz@gmail.com'],
+  ['Francoyse Mendes','francoysemendes@gmail.com'],
+];
+const SENHA_PARTICIPANTE = 'iec2026';
+
+function garantirParticipantes(d){
+  if(!d.usuarios) d.usuarios = [];
+  if(!d.usuarios.some(u=>u.email===ADMIN_EMAIL)){
+    d.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
+  }
+  PARTICIPANTES.forEach(([nome,email])=>{
+    const e = email.toLowerCase();
+    if(!d.usuarios.some(u=>u.email.toLowerCase()===e)){
+      d.usuarios.push({nome, email:e, senha:SENHA_PARTICIPANTE});
+    }
+  });
+  return d;
+}
+
 let db = {
   usuarios: [{nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true}],
   postits: []
@@ -588,9 +678,7 @@ function salvar(){
 function carregar(){
   const s = localStorage.getItem('ec_db');
   if(s) db = JSON.parse(s);
-  if(!db.usuarios.some(u=>u.email===ADMIN_EMAIL)){
-    db.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
-  }
+  garantirParticipantes(db);
 }
 carregar();
 
@@ -599,9 +687,7 @@ window.aplicarRemoto = function(remoto){
   db = remoto;
   if(!db.usuarios) db.usuarios = [];
   if(!db.postits) db.postits = [];
-  if(!db.usuarios.some(u=>u.email===ADMIN_EMAIL)){
-    db.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
-  }
+  garantirParticipantes(db);
   localStorage.setItem('ec_db', JSON.stringify(db));
   window.db = db;
   try{ renderBoard(); renderUsers(); renderReflexao(); renderNuvem(); }catch(e){}
