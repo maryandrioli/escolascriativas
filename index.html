@@ -73,7 +73,76 @@
   }
   details.gal-group{margin:8px 0}
   details.gal-group summary{cursor:pointer;font-weight:600;color:var(--magenta);padding:6px 0;font-size:.95rem}
-  #telaMaonamassa,#telaNuvem,#telaReflexao{display:none}
+  #telaMaonamassa,#telaNuvem,#telaReflexao,#telaCompart{display:none}
+  .tab-compart{background:var(--rosa)}
+  .compart-card{background:#fff;border-left:5px solid var(--magenta);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .compart-card .autor{font-size:.8rem;color:#666;display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+  .compart-card .sala-pill{background:var(--laranja);color:#fff;padding:2px 8px;border-radius:10px;font-size:.7rem}
+  .compart-card img{max-width:100%;max-height:220px;border-radius:8px;margin-top:8px;cursor:zoom-in;display:block}
+  .compart-card a{color:var(--azul);font-weight:600;word-break:break-all}
+  .compart-filtros{display:flex;gap:0;flex-wrap:wrap;margin-bottom:18px;font-size:.9rem;align-items:center;border-bottom:2px solid #eee;padding-bottom:0}
+  .compart-filtros .subaba{background:transparent;color:#777;border:none;padding:10px 18px;border-radius:0;border-bottom:3px solid transparent;font-weight:600;margin-bottom:-2px}
+  .compart-filtros .subaba.ativa{color:var(--magenta);border-bottom-color:var(--magenta)}
+  .compart-filtros .subaba .ct{background:#eee;color:#555;border-radius:10px;padding:1px 7px;margin-left:6px;font-size:.7rem;font-weight:700}
+  .compart-filtros .subaba.ativa .ct{background:var(--magenta);color:#fff}
+
+  /* Avatar */
+  .avatar{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#fff;font-size:.7rem;font-weight:700;margin-right:4px;font-family:Arial}
+  .avatar.lg{width:32px;height:32px;font-size:.85rem}
+
+  /* Animação novo post-it */
+  @keyframes pop {0%{transform:scale(0.3) rotate(-10deg);opacity:0} 60%{transform:scale(1.1) rotate(2deg)} 100%{transform:scale(1) rotate(-2deg);opacity:1}}
+  .postit.novo{animation:pop .6s ease-out}
+
+  /* FAB botão flutuante */
+  .fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:var(--magenta);color:#fff;font-size:1.8rem;box-shadow:0 4px 20px rgba(229,25,127,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;border:none}
+  .fab:hover{transform:scale(1.1)}
+  .fab-menu{position:fixed;bottom:96px;right:24px;display:none;flex-direction:column;gap:8px;z-index:500}
+  .fab-menu.aberto{display:flex}
+  .fab-menu button{border-radius:24px;padding:10px 16px;font-size:.85rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  @media (max-width:720px){
+    .fab{display:flex}
+    .postit-toolbar{display:none !important}
+  }
+
+  /* Modo lista mobile */
+  .modo-toggle{display:none;gap:6px;align-items:center;margin-bottom:10px}
+  @media (max-width:720px){
+    .modo-toggle{display:flex}
+  }
+  .lista-postits{display:none;flex-direction:column;gap:10px}
+  .lista-postits.ativa{display:flex}
+  .lista-postits .postit-card{
+    border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:6px solid var(--magenta);
+  }
+  .lista-postits .postit-card.amarelo{background:#FFF59D;border-left-color:#FFC107}
+  .lista-postits .postit-card.verde{background:#A5D6A7;border-left-color:#2BB673}
+  .lista-postits .postit-card.magenta{background:#F8BBD0;border-left-color:var(--magenta)}
+  .lista-postits .postit-card img{max-width:100%;max-height:160px;border-radius:6px;margin-top:6px}
+
+  /* Presença online */
+  .presenca{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+  .presenca .avatar{border:2px solid var(--verde);position:relative}
+  .presenca .avatar::after{content:'';position:absolute;bottom:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:var(--verde);border:1.5px solid #fff}
+  .presenca-bar{background:#fff;padding:10px 16px;border-radius:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;align-items:center;gap:10px;font-size:.85rem;flex-wrap:wrap}
+
+  /* Badge de notificação */
+  .badge-notif{background:#E53935;color:#fff;border-radius:10px;padding:1px 6px;font-size:.7rem;margin-left:4px;font-weight:700}
+
+  /* Tutorial */
+  .tutorial-slide{display:none}
+  .tutorial-slide.ativo{display:block}
+  .tutorial-dots{display:flex;gap:6px;justify-content:center;margin:14px 0}
+  .tutorial-dots span{width:10px;height:10px;border-radius:50%;background:#ddd}
+  .tutorial-dots span.ativo{background:var(--magenta)}
+
+  /* Print: exportar PDF de uma sala */
+  @media print {
+    header,nav,.fab,.fab-menu,.postit-toolbar,.modo-toggle,.presenca-bar,footer,#adminPanel,.hero,#telaInspiracoes,#telaNuvem,#telaReflexao,#telaCompart,.board-wrap > div[style*="text-align:center"]{display:none !important}
+    .board{position:static !important;height:auto !important;min-height:auto !important;background:#fff !important;border:none !important;transform:none !important}
+    .postit{position:relative !important;display:inline-block;width:240px;min-height:180px;margin:8px;transform:none !important;page-break-inside:avoid}
+    body{background:#fff}
+  }
   .tab-reflexao{background:var(--verde)}
   .reflexao-item{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;border-left:5px solid var(--magenta);box-shadow:0 2px 8px rgba(0,0,0,.04)}
   .reflexao-item h4{margin:0 0 4px;color:var(--azul);font-size:1.05rem}
@@ -200,6 +269,7 @@
     <button id="tabMao" class="tab-mao" onclick="trocarTela('maonamassa')">✋ Mão na massa</button>
     <button id="tabNuvem" class="tab-nuvem" onclick="trocarTela('nuvem')">☁ Nuvem</button>
     <button id="tabReflexao" class="tab-reflexao" onclick="trocarTela('reflexao')">💭 Para refletir</button>
+    <button id="tabCompart" class="tab-compart" onclick="trocarTela('compart')">📚 Compartilhamentos</button>
   </nav>
   <div class="user-area" id="userArea">
     <button onclick="showLogin()">Entrar / Cadastrar</button>
@@ -264,6 +334,17 @@
   <h3 style="font-size:1.6rem">✋ Mão na massa — Pensando juntos na mesma mesa</h3>
   <p>Vamos imaginar que estamos juntos, todos pensando juntos, em uma mesma mesa cheia de post-its. <strong>Faça login</strong> para incluir e arrastar seus post-its. Você só pode editar e mover os seus — se ver um igual ao seu, curta e apague o seu próprio. 💛</p>
 
+  <div class="presenca-bar" id="presencaBar" style="display:none">
+    <strong>🟢 Online agora:</strong>
+    <div class="presenca" id="presencaLista"></div>
+  </div>
+
+  <div class="modo-toggle">
+    <strong>Visão:</strong>
+    <button class="small ghost" id="btnMesa" onclick="setModo('mesa')">🗂 Mesa</button>
+    <button class="small" id="btnLista" onclick="setModo('lista')">📋 Lista</button>
+  </div>
+
   <div class="postit-toolbar" id="postitToolbar" style="display:none">
     <button onclick="abrirPostit('amarelo')" style="background:#FFC107;color:#333">💛 Post-it amarelo (Desafio)</button>
     <button onclick="abrirPostit('verde')" style="background:#4CAF50">💚 Post-it verde (Ideia)</button>
@@ -289,10 +370,13 @@
     <button class="small ghost" onclick="zoom(0.1)">+</button>
     <span id="zoomLabel" style="font-size:.8rem;color:#666;min-width:40px">100%</span>
   </div>
-  <div class="board-wrap"><div class="board" id="board" style="min-height:680px;transform-origin:0 0"></div></div>
+  <div class="board-wrap" id="boardWrap"><div class="board" id="board" style="min-height:680px;transform-origin:0 0"></div></div>
+  <div class="lista-postits" id="listaPostits"></div>
 
-  <div style="text-align:center;margin-top:18px">
+  <div style="text-align:center;margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
     <button class="ghost" onclick="trocarTela('inspiracoes')">← Voltar para Inspirações</button>
+    <button class="ghost" onclick="exportarPDF()">🖨 PDF da sala</button>
+    <button class="ghost" onclick="exportarCSV()">📊 CSV (análise)</button>
   </div>
 </section>
 </div><!-- /telaMaonamassa -->
@@ -310,6 +394,18 @@
   <h4>📊 Status de participação</h4>
   <div style="overflow-x:auto"><table class="status-table" id="statusTable"></table></div>
 </section>
+
+<div id="telaCompart">
+<section style="padding:32px">
+  <h3 style="font-size:1.5rem">📚 Compartilhamentos</h3>
+  <p style="color:#555;font-size:.95rem">Todas as ideias, links, imagens e arquivos compartilhados pelos participantes nos post-its magenta, reunidos das 4 salas.</p>
+  <div class="compart-filtros" id="compartSubabas"></div>
+  <div id="compartLista"></div>
+  <div style="text-align:center;margin-top:18px">
+    <button class="ghost" onclick="trocarTela('maonamassa')">← Voltar para Mão na Massa</button>
+  </div>
+</section>
+</div>
 
 <div id="telaReflexao">
 <section style="padding:32px">
@@ -425,9 +521,9 @@
       <input id="postitLink" placeholder="https://..."/>
     </div>
     <div class="form-row" id="rowArquivo" style="display:none">
-      <label>Arquivo (opcional — .html, imagens, pdf)</label>
-      <input type="file" id="postitArquivo" accept=".html,.htm,image/*,.pdf,.txt"/>
-      <div class="login-hint">Arquivos HTML abrirão em nova aba ao clicar no post-it.</div>
+      <label>Arquivo (opcional — máx. 500KB)</label>
+      <input type="file" id="postitArquivo" accept=".html,.htm,image/jpeg,image/jpg,image/png,image/gif,.pdf,.txt"/>
+      <div class="login-hint">Aceita HTML, JPG, PNG, GIF, PDF e TXT. Para arquivos maiores, use link externo.</div>
     </div>
     <div class="form-actions">
       <button class="ghost" onclick="fecharModal('modalPostit')">Cancelar</button>
@@ -437,6 +533,38 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="fab-menu" id="fabMenu">
+  <button onclick="abrirPostit('amarelo');toggleFab()" style="background:#FFC107;color:#333">💛 Desafio</button>
+  <button onclick="abrirPostit('verde');toggleFab()" style="background:#4CAF50">💚 Ideia</button>
+  <button onclick="abrirPostit('magenta');toggleFab()">💗 Compartilhar</button>
+</div>
+<button class="fab" id="fabBtn" onclick="toggleFab()" title="Novo post-it">＋</button>
+
+<div class="modal" id="modalTutorial">
+  <div class="modal-content">
+    <div class="tutorial-slide ativo" data-s="0">
+      <h3>👋 Bem-vinda(o)!</h3>
+      <p>Este é um espaço de criação coletiva. Vamos refletir sobre desafios e construir juntos recursos pedagógicos.</p>
+      <p>💛 <strong>Amarelo</strong> = desafios &nbsp; 💚 <strong>Verde</strong> = ideias &nbsp; 💗 <strong>Magenta</strong> = compartilhamentos</p>
+    </div>
+    <div class="tutorial-slide" data-s="1">
+      <h3>✏ Criando seu post-it</h3>
+      <p>No menu da <strong>Mão na Massa</strong>, escolha uma cor. Você pode mover, editar e apagar apenas <strong>os seus</strong>.</p>
+      <p>💡 No celular, use o botão <strong>＋ flutuante</strong> no canto inferior.</p>
+    </div>
+    <div class="tutorial-slide" data-s="2">
+      <h3>💬 Interagindo</h3>
+      <p>Curta (❤) e comente os post-its dos colegas. Veja a <strong>Nuvem de palavras</strong> emergir e contribua na aba <strong>Para refletir</strong> com seus votos.</p>
+      <p>Pronto para começar?</p>
+    </div>
+    <div class="tutorial-dots" id="tutorialDots"><span class="ativo"></span><span></span><span></span></div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharTutorial()">Pular</button>
+      <button onclick="proxSlide()" id="tutorialBtn">Próximo →</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ============ DADOS ============ */
@@ -495,6 +623,7 @@ function renderUserArea(){
     el.innerHTML = `
       <span class="badge ${sessao.admin?'admin':''}">${sessao.admin?'ADMIN':'Participante'}</span>
       <span>👋 ${sessao.nome}</span>
+      <button class="ghost small" onclick="toggleSom()" title="Som">${somLigado?'🔊':'🔇'}</button>
       <button class="ghost small" onclick="logout()">Sair</button>`;
     document.getElementById('postitToolbar').style.display='flex';
     document.getElementById('adminPanel').style.display = sessao.admin?'block':'none';
@@ -516,6 +645,8 @@ function fazerLogin(){
   fecharModal('modalLogin');
   renderUserArea(); renderBoard();
   toast('Bem-vindo(a), '+u.nome+'!');
+  if(!localStorage.getItem('ec_tut_'+u.email)) setTimeout(showTutorial, 600);
+  iniciarPresenca();
 }
 function logout(){ sessao=null; sessionStorage.removeItem('ec_sessao'); renderUserArea(); renderBoard(); }
 
@@ -612,7 +743,7 @@ async function salvarPostit(){
 
   let arquivo = null;
   if(arquivoEl.files[0]){
-    if(arquivoEl.files[0].size > 2*1024*1024){ toast('Arquivo maior que 2MB'); return; }
+    if(arquivoEl.files[0].size > 500*1024){ toast('Arquivo maior que 500KB. Prefira link.'); return; }
     arquivo = await lerArquivo(arquivoEl.files[0]);
   }
 
@@ -711,9 +842,10 @@ function renderBoard(){
     const comentariosHtml = p.comentarios.map(c=>`
         <div class="com"><span class="a">${c.autor} · ${new Date(c.t).toLocaleDateString('pt-BR')}</span>${c.texto}</div>`).join('');
 
+    if(p.criado && (Date.now()-p.criado) < 1500) el.classList.add('novo');
     el.innerHTML = `
       <div class="meta">
-        <span>${p.autorNome||'?'}</span>
+        <span>${avatarHTML(p.autorNome,p.autor)}${p.autorNome||'?'}</span>
         ${catHtml}
       </div>
       <div class="conteudo">${linkificar(p.conteudo)}${linkHtml}${arquivoHtml}</div>
@@ -823,19 +955,270 @@ function comentar(id){
   salvar(); renderBoard();
 }
 
+/* ===== AVATAR ===== */
+const CORES_AV = ['#E5197F','#2E3192','#F39200','#2BB673','#1FB5A8','#F25CA2','#9B59B6','#16A085'];
+function avatarHash(s){ let h=0; for(let i=0;i<(s||'').length;i++) h = (h*31 + s.charCodeAt(i))|0; return Math.abs(h); }
+function avatarHTML(nome,email,cls=''){
+  const i = (nome||'?').trim()[0].toUpperCase();
+  const cor = CORES_AV[avatarHash(email||nome) % CORES_AV.length];
+  return `<span class="avatar ${cls}" style="background:${cor}">${i}</span>`;
+}
+
+/* ===== SOM ===== */
+let somLigado = localStorage.getItem('ec_som')!=='off';
+function toggleSom(){ somLigado=!somLigado; localStorage.setItem('ec_som', somLigado?'on':'off'); toast('Som '+(somLigado?'ativado':'desativado')); }
+function bip(freq=600,dur=80){
+  if(!somLigado) return;
+  try{
+    const AC = window.AudioContext||window.webkitAudioContext;
+    const ctx = new AC();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = freq; o.type='sine';
+    g.gain.value = .08; o.connect(g); g.connect(ctx.destination);
+    o.start(); setTimeout(()=>{o.stop(); ctx.close();}, dur);
+  }catch(e){}
+}
+window.bip = bip;
+
+/* ===== FAB ===== */
+function toggleFab(){ document.getElementById('fabMenu').classList.toggle('aberto'); }
+
+/* ===== MODO LISTA / MESA ===== */
+let modoVis = localStorage.getItem('ec_modo')|| (window.innerWidth<720?'lista':'mesa');
+function setModo(m){
+  modoVis = m; localStorage.setItem('ec_modo', m);
+  document.getElementById('boardWrap').style.display = m==='mesa'?'block':'none';
+  document.getElementById('listaPostits').classList.toggle('ativa', m==='lista');
+  document.getElementById('btnMesa').className = m==='mesa'?'small':'small ghost';
+  document.getElementById('btnLista').className = m==='lista'?'small':'small ghost';
+  renderBoard();
+}
+
+function renderListaPostits(){
+  const el = document.getElementById('listaPostits');
+  if(!el) return;
+  const lista = db.postits.filter(p=>(p.sala||1)===salaAtual);
+  if(!lista.length){ el.innerHTML='<em style="color:#999;text-align:center;padding:20px">Nenhum post-it nesta sala ainda.</em>'; return; }
+  el.innerHTML = lista.map(p=>{
+    const meu = sessao && p.autor===sessao.email;
+    const podeApagar = meu || sessao?.admin;
+    let media='';
+    if(p.arquivo){
+      const ehImg = (p.arquivo.tipo||'').startsWith('image/');
+      media = ehImg
+        ? `<img src="${p.arquivo.dados}" onclick="abrirArquivo('${p.id}')"/>`
+        : `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+    }
+    const linkHtml = p.link? `<div style="margin-top:6px"><a href="${p.link}" target="_blank">🔗 ${p.link.slice(0,50)}...</a></div>`:'';
+    const cat = p.categoria? `<span class="cat-tag" style="background:rgba(0,0,0,.1);padding:2px 6px;border-radius:8px;font-size:.7rem;margin-left:6px">${p.categoria}</span>`:'';
+    const curtido = sessao && p.likes.includes(sessao.email);
+    return `<div class="postit-card ${p.cor}">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;font-size:.85rem;margin-bottom:6px">
+        <span>${avatarHTML(p.autorNome,p.autor)} <strong>${p.autorNome||'?'}</strong> ${cat}</span>
+        <span style="font-size:.7rem;color:#555">Sala ${p.sala||1}</span>
+      </div>
+      <div>${linkificar(p.conteudo||'')}${linkHtml}${media}</div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="small" onclick="curtir('${p.id}')" style="background:${curtido?'#E5197F':'#888'}">❤ ${p.likes.length}</button>
+        ${meu?`<button class="small alt" onclick="abrirPostit('${p.cor}','${p.id}')">✏</button>`:''}
+        ${podeApagar?`<button class="small danger" onclick="apagar('${p.id}')">🗑</button>`:''}
+      </div>
+      <details class="postit-comentarios" style="margin-top:8px"><summary>💬 ${(p.comentarios||[]).length}</summary>
+        ${(p.comentarios||[]).map(c=>`<div class="com"><span class="a">${c.autor}</span>${c.texto}</div>`).join('')}
+        ${sessao?`<textarea id="comL-${p.id}" placeholder="Comentar..."></textarea><button class="small" style="margin-top:4px;background:var(--azul)" onclick="comentarLista('${p.id}')">Comentar</button>`:''}
+      </details>
+    </div>`;
+  }).join('');
+}
+function comentarLista(id){
+  if(!sessao) return;
+  const t = document.getElementById('comL-'+id);
+  if(!t||!t.value.trim()) return;
+  const p = db.postits.find(x=>x.id===id);
+  p.comentarios = p.comentarios||[];
+  p.comentarios.push({autor:sessao.nome,email:sessao.email,texto:t.value.trim(),t:Date.now()});
+  salvar(); bip(700,60); renderBoard();
+}
+
+/* ===== TUTORIAL ===== */
+let tutS = 0;
+function showTutorial(){ tutS=0; atualizaTutorial(); document.getElementById('modalTutorial').classList.add('show'); }
+function atualizaTutorial(){
+  document.querySelectorAll('.tutorial-slide').forEach(s=>s.classList.toggle('ativo', +s.dataset.s===tutS));
+  document.querySelectorAll('#tutorialDots span').forEach((d,i)=>d.classList.toggle('ativo',i===tutS));
+  document.getElementById('tutorialBtn').textContent = tutS===2?'Começar 🚀':'Próximo →';
+}
+function proxSlide(){
+  if(tutS<2){ tutS++; atualizaTutorial(); } else fecharTutorial();
+}
+function fecharTutorial(){
+  document.getElementById('modalTutorial').classList.remove('show');
+  if(sessao) localStorage.setItem('ec_tut_'+sessao.email,'1');
+}
+
+/* ===== EXPORTAR PDF ===== */
+function exportarPDF(){
+  toast('Use Ctrl/Cmd+P → Salvar como PDF');
+  setTimeout(()=>window.print(), 600);
+}
+
+function csvEscape(v){
+  if(v==null) return '';
+  const s = String(v).replace(/"/g,'""').replace(/\r?\n/g,' ');
+  return /[",;]/.test(s) ? `"${s}"` : s;
+}
+function baixar(nome, conteudo, tipo='text/csv;charset=utf-8'){
+  const blob = new Blob(['﻿'+conteudo], {type:tipo});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nome; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+
+function exportarCSV(){
+  const ts = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
+
+  const cab1 = ['id','sala','cor','tipo','categoria','autor','data_criacao','conteudo','link','tem_arquivo','curtidas','n_comentarios','lido_por'];
+  const linhas1 = [cab1.join(';')];
+  db.postits.forEach(p=>{
+    const tipo = p.cor==='amarelo'?'desafio':(p.cor==='verde'?'ideia':'compartilhamento');
+    linhas1.push([
+      p.id, p.sala||1, p.cor, tipo, p.categoria||'', p.autorNome||'',
+      p.criado?new Date(p.criado).toLocaleString('pt-BR'):'',
+      p.conteudo||'', p.link||'', p.arquivo?'sim':'não',
+      (p.likes||[]).length, (p.comentarios||[]).length, (p.lidoPor||[]).length
+    ].map(csvEscape).join(';'));
+  });
+
+  const cab2 = ['postit_id','sala','cor','autor_postit','comentarista','data','comentario'];
+  const linhas2 = [cab2.join(';')];
+  db.postits.forEach(p=>{
+    (p.comentarios||[]).forEach(c=>{
+      linhas2.push([p.id,p.sala||1,p.cor,p.autorNome||'',c.autor||'',new Date(c.t).toLocaleString('pt-BR'),c.texto||''].map(csvEscape).join(';'));
+    });
+  });
+
+  const cab3 = ['dimensao','verde_completo','amarelo_parcial','vermelho_longe','total'];
+  const linhas3 = [cab3.join(';')];
+  (ITENS_REFLEXAO||[]).forEach(it=>{
+    const v = (db.reflexoes||{})[it.k]||{};
+    const c = {verde:0,amarela:0,vermelha:0};
+    Object.values(v).forEach(x=>{ if(c[x]!=null) c[x]++; });
+    linhas3.push([it.titulo,c.verde,c.amarela,c.vermelha,c.verde+c.amarela+c.vermelha].map(csvEscape).join(';'));
+  });
+
+  const cab4 = ['nome','contribuiu','n_postits','curtidas_dadas','comentarios_feitos','postits_lidos'];
+  const linhas4 = [cab4.join(';')];
+  db.usuarios.forEach(u=>{
+    const meus = db.postits.filter(p=>p.autor===u.email).length;
+    const curt = db.postits.filter(p=>(p.likes||[]).includes(u.email)).length;
+    const com  = db.postits.reduce((s,p)=>s+(p.comentarios||[]).filter(c=>c.email===u.email).length,0);
+    const lid  = db.postits.filter(p=>p.autor!==u.email && (p.lidoPor||[]).includes(u.email)).length;
+    linhas4.push([u.nome, meus>0?'sim':'não', meus, curt, com, lid].map(csvEscape).join(';'));
+  });
+
+  baixar(`escolas-postits-${ts}.csv`, linhas1.join('\n'));
+  setTimeout(()=>baixar(`escolas-comentarios-${ts}.csv`, linhas2.join('\n')), 400);
+  setTimeout(()=>baixar(`escolas-reflexoes-${ts}.csv`, linhas3.join('\n')), 800);
+  setTimeout(()=>baixar(`escolas-participacao-${ts}.csv`, linhas4.join('\n')), 1200);
+  toast('Exportando 4 arquivos CSV...');
+}
+
+/* ===== NOTIFICAÇÃO DE COMENTÁRIOS ===== */
+function contarNotif(){
+  if(!sessao) return 0;
+  const visto = parseInt(localStorage.getItem('ec_visto_'+sessao.email)||'0');
+  let n=0;
+  db.postits.forEach(p=>{
+    if(p.autor!==sessao.email) return;
+    (p.comentarios||[]).forEach(c=>{ if(c.email!==sessao.email && c.t>visto) n++; });
+  });
+  return n;
+}
+function marcarNotificacoesVistas(){
+  if(sessao) localStorage.setItem('ec_visto_'+sessao.email, Date.now());
+}
+function atualizarNotif(){
+  const btn = document.getElementById('tabMao');
+  if(!btn) return;
+  const n = contarNotif();
+  btn.innerHTML = '✋ Mão na massa' + (n>0?`<span class="badge-notif">${n}</span>`:'');
+}
+
+/* ===== ATALHOS DE TECLADO ===== */
+document.addEventListener('keydown', e=>{
+  if(!sessao) return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.altKey||e.ctrlKey||e.metaKey) return;
+  const k = e.key.toLowerCase();
+  if(k==='a'){ abrirPostit('amarelo'); }
+  else if(k==='v'){ abrirPostit('verde'); }
+  else if(k==='m'){ abrirPostit('magenta'); }
+});
+
 function trocarTela(t){
   document.getElementById('telaInspiracoes').style.display = t==='inspiracoes'?'block':'none';
   document.getElementById('telaMaonamassa').style.display = t==='maonamassa'?'block':'none';
   document.getElementById('telaNuvem').style.display = t==='nuvem'?'block':'none';
   document.getElementById('telaReflexao').style.display = t==='reflexao'?'block':'none';
-  const tabs = {inspiracoes:'tabInsp',maonamassa:'tabMao',nuvem:'tabNuvem',reflexao:'tabReflexao'};
+  document.getElementById('telaCompart').style.display = t==='compart'?'block':'none';
+  const tabs = {inspiracoes:'tabInsp',maonamassa:'tabMao',nuvem:'tabNuvem',reflexao:'tabReflexao',compart:'tabCompart'};
   Object.values(tabs).forEach(id=>{
     document.getElementById(id).classList.toggle('inativa', tabs[t]!==id);
   });
   if(t==='nuvem') renderNuvem();
-  if(t==='maonamassa') renderBoard();
-  if(t==='reflexao') renderReflexao();
+  if(t==='maonamassa'){ renderBoard(); marcarNotificacoesVistas(); atualizarNotif(); }
+  if(t==='reflexao'){ renderReflexao(); setTimeout(()=>{const el=document.getElementById('reflexaoLista'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});},80); return; }
+  if(t==='compart') renderCompart();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let filtroCompart = 'todas';
+function filtrarCompart(s){ filtroCompart = s; renderCompart(); }
+
+function renderCompart(){
+  const el = document.getElementById('compartLista');
+  if(!el) return;
+  const todosCompart = db.postits.filter(p=>p.cor==='magenta');
+  const subabas = document.getElementById('compartSubabas');
+  const conta = s => s==='todas' ? todosCompart.length : todosCompart.filter(p=>(p.sala||1)===s).length;
+  const abas = [
+    {k:'todas', label:'📚 Todos'},
+    {k:1, label:'🏠 Sala 1'},
+    {k:2, label:'🏠 Sala 2'},
+    {k:3, label:'🏠 Sala 3'},
+    {k:4, label:'🏠 Sala 4'}
+  ];
+  subabas.innerHTML = abas.map(a=>`
+    <button class="subaba ${filtroCompart===a.k?'ativa':''}" onclick="filtrarCompart(${typeof a.k==='string'?`'${a.k}'`:a.k})">
+      ${a.label}<span class="ct">${conta(a.k)}</span>
+    </button>`).join('');
+  let lista = todosCompart;
+  if(filtroCompart!=='todas') lista = lista.filter(p=>(p.sala||1)===filtroCompart);
+  lista.sort((a,b)=>(b.criado||0)-(a.criado||0));
+  if(!lista.length){ el.innerHTML = '<em style="color:#999">Nenhum compartilhamento ainda.</em>'; return; }
+  el.innerHTML = lista.map(p=>{
+    let media = '';
+    if(p.arquivo){
+      const ehImg = (p.arquivo.tipo||'').startsWith('image/') || /\.(jpe?g|png|gif)$/i.test(p.arquivo.nome);
+      if(ehImg){
+        media = `<img src="${p.arquivo.dados}" alt="${p.arquivo.nome}" onclick="abrirArquivo('${p.id}')"/>`;
+      } else {
+        media = `<div style="margin-top:8px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+      }
+    }
+    const linkHtml = p.link ? `<div style="margin-top:8px">🔗 <a href="${p.link}" target="_blank">${p.link}</a></div>` : '';
+    const dt = p.criado ? new Date(p.criado).toLocaleString('pt-BR') : '';
+    return `<div class="compart-card">
+      <div class="autor">
+        <span><strong>${p.autorNome||'?'}</strong> · ${dt}</span>
+        <span class="sala-pill">Sala ${p.sala||1}</span>
+      </div>
+      <div>${linkificar(p.conteudo||'')}</div>
+      ${linkHtml}
+      ${media}
+    </div>`;
+  }).join('');
 }
 
 const ITENS_REFLEXAO = [
@@ -931,7 +1314,7 @@ function renderStatus(){
     const curtidasDadas = db.postits.filter(p=>(p.likes||[]).includes(u.email)).length;
     const comentariosFeitos = db.postits.reduce((s,p)=>s+(p.comentarios||[]).filter(c=>c.email===u.email).length,0);
     return `<tr>
-      <td>${u.admin?'👑 ':''}<strong>${u.nome}</strong><br><small>${u.email}</small></td>
+      <td>${u.admin?'👑 ':''}${avatarHTML(u.nome,u.email)}<strong>${u.nome}</strong></td>
       <td class="${meus.length?'ok':'nao'}">${meus.length?'✓ '+meus.length:'—'}</td>
       <td>${[...areas].join(', ')||'<span class="nao">—</span>'}</td>
       <td>${lidos}/${lidosTotal}</td>
@@ -943,18 +1326,41 @@ function renderStatus(){
 }
 
 const _oldRenderBoard = renderBoard;
-renderBoard = function(){ _oldRenderBoard(); renderStatus(); };
+renderBoard = function(){ _oldRenderBoard(); renderStatus(); renderListaPostits(); atualizarNotif(); };
 const _oldRenderUsers = renderUsers;
 renderUsers = function(){ _oldRenderUsers(); renderStatus(); };
+/* ===== PRESENÇA ONLINE ===== */
+let presencaTimer = null;
+function iniciarPresenca(){
+  if(!sessao || !window.fbPresenca) return;
+  const ping = ()=> window.fbPresenca(sessao.email, sessao.nome);
+  ping();
+  if(presencaTimer) clearInterval(presencaTimer);
+  presencaTimer = setInterval(ping, 25000);
+}
+function renderPresenca(usuariosOnline){
+  const bar = document.getElementById('presencaBar');
+  const lista = document.getElementById('presencaLista');
+  if(!bar||!lista) return;
+  const online = usuariosOnline||[];
+  if(online.length===0){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  lista.innerHTML = online.map(u=>`<span title="${u.nome}">${avatarHTML(u.nome,u.email)}</span>`).join('') + ` <span style="color:#666;font-size:.8rem">(${online.length})</span>`;
+}
+window.renderPresenca = renderPresenca;
+
 trocarTela('inspiracoes');
 renderUserArea();
+setModo(modoVis);
 renderBoard();
 aplicarZoom();
+if(sessao) iniciarPresenca();
+setInterval(atualizarNotif, 8000);
 </script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNZKwXZ7QSgqhNoam071WokVDO8oePMvI",
@@ -978,6 +1384,7 @@ window.fbSave = async function(dbObj){
   }catch(e){ console.warn("fbSave erro", e); }
 };
 
+let dbAnterior = null;
 onSnapshot(ref, snap => {
   if(!snap.exists()) {
     if(window.fbSave && window.db) window.fbSave(window.db);
@@ -988,10 +1395,40 @@ onSnapshot(ref, snap => {
   if(data && data.json){
     try{
       const remoto = JSON.parse(data.json);
+      const antes = dbAnterior;
+      const depois = remoto;
+      if(antes && window.bip){
+        const cAntes = (antes.postits||[]).reduce((s,p)=>s+(p.comentarios||[]).length,0);
+        const cDepois = (depois.postits||[]).reduce((s,p)=>s+(p.comentarios||[]).length,0);
+        const lAntes = (antes.postits||[]).reduce((s,p)=>s+(p.likes||[]).length,0);
+        const lDepois = (depois.postits||[]).reduce((s,p)=>s+(p.likes||[]).length,0);
+        if(cDepois>cAntes) window.bip(700,90);
+        else if(lDepois>lAntes) window.bip(900,50);
+        else if((depois.postits||[]).length>(antes.postits||[]).length) window.bip(550,70);
+      }
+      dbAnterior = remoto;
       window.aplicarRemoto(remoto);
     }catch(e){ console.warn("parse erro", e); }
   }
 }, err => console.warn("onSnapshot erro", err));
+
+/* Presença */
+const presencaCol = collection(fdb, "presenca");
+window.fbPresenca = async function(email, nome){
+  try{
+    const ref2 = doc(fdb, "presenca", email.replace(/[^a-z0-9]/gi,'_'));
+    await setDoc(ref2, { email, nome, t: Date.now() });
+  }catch(e){}
+};
+onSnapshot(presencaCol, snap => {
+  const agora = Date.now();
+  const online = [];
+  snap.forEach(d=>{
+    const x = d.data();
+    if(agora - (x.t||0) < 60000) online.push(x);
+  });
+  if(window.renderPresenca) window.renderPresenca(online);
+}, err=>console.warn(err));
 
 console.log("✓ Firebase conectado");
 </script>
