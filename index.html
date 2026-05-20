@@ -212,7 +212,11 @@
   .postit.verde{background:#A5D6A7}
   .postit.magenta{background:#F8BBD0}
   .postit .meta{font-size:.7rem;opacity:.75;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-family:Arial}
-  .postit .conteudo{flex:1;word-wrap:break-word;white-space:pre-wrap}
+  .postit{max-height:340px}
+  .postit .conteudo{flex:1;word-wrap:break-word;white-space:pre-wrap;max-height:200px;overflow-y:auto;padding-right:4px}
+  .postit .conteudo::-webkit-scrollbar{width:6px}
+  .postit .conteudo::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:3px}
+  .lista-postits .postit-card > div:nth-child(2){max-height:360px;overflow-y:auto}
   .postit .conteudo a{color:var(--azul);font-weight:700}
   .postit .actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;font-family:Arial}
   .postit .actions button{padding:3px 8px;font-size:.7rem;border-radius:12px}
