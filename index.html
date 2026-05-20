@@ -697,7 +697,12 @@ function renderBoard(){
 
     let arquivoHtml='';
     if(p.arquivo){
-      arquivoHtml = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+      const ehImg = (p.arquivo.tipo||'').startsWith('image/') || /\.(jpe?g|png|gif)$/i.test(p.arquivo.nome);
+      if(ehImg){
+        arquivoHtml = `<div style="margin-top:6px"><img src="${p.arquivo.dados}" alt="${p.arquivo.nome}" style="max-width:100%;max-height:120px;border-radius:6px;cursor:zoom-in;display:block" onclick="abrirArquivo('${p.id}')"/></div>`;
+      } else {
+        arquivoHtml = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+      }
     }
     let linkHtml = p.link ? `<div style="margin-top:6px"><a href="${p.link}" target="_blank">🔗 ${p.link.slice(0,40)}${p.link.length>40?'...':''}</a></div>` : '';
     let catHtml = p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : '';
