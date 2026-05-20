@@ -728,7 +728,7 @@ function renderBoard(){
         ${sessao?`<textarea id="com-${p.id}" placeholder="Comente..."></textarea>
           <button class="small" onclick="comentar('${p.id}')" style="margin-top:4px;background:var(--azul)">Comentar</button>`:''}
       </details>`;
-    if(meuPostit) tornarArrastavel(el, p);
+    if(meuPostit || (sessao && sessao.admin)) tornarArrastavel(el, p);
     board.appendChild(el);
   });
 }
