@@ -73,9 +73,46 @@
   }
   details.gal-group{margin:8px 0}
   details.gal-group summary{cursor:pointer;font-weight:600;color:var(--magenta);padding:6px 0;font-size:.95rem}
-  #telaMaonamassa{display:none}
+  #telaMaonamassa,#telaNuvem,#telaReflexao{display:none}
+  .tab-reflexao{background:var(--verde)}
+  .reflexao-item{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;border-left:5px solid var(--magenta);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .reflexao-item h4{margin:0 0 4px;color:var(--azul);font-size:1.05rem}
+  .reflexao-item p{margin:0 0 12px;font-size:.92rem;color:#444}
+  .bolinhas{display:flex;gap:14px;align-items:center}
+  .bola{width:32px;height:32px;border-radius:50%;border:3px solid #ddd;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+  .bola:hover{transform:scale(1.15)}
+  .bola.verde{background:#2BB673}
+  .bola.amarela{background:#FFC107}
+  .bola.vermelha{background:#E53935}
+  .bola.sel{border-color:#222;box-shadow:0 0 0 3px rgba(0,0,0,.1) inset;transform:scale(1.1)}
+  .bola.off{opacity:.35}
+  .resumo-reflexao{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:.8rem;color:#666}
+  .barra{display:flex;height:14px;border-radius:8px;overflow:hidden;flex:1;background:#eee;min-width:120px}
+  .barra div{height:100%}
+  .sala-btn{background:#e8e8e8;color:#555;padding:6px 14px;font-size:.85rem}
+  .sala-btn.ativa{background:var(--laranja);color:#fff}
+  .sala-btn .qt{background:rgba(0,0,0,.15);padding:1px 6px;border-radius:10px;margin-left:4px;font-size:.7rem}
   .tela-ativa{display:block !important}
-  nav button.ativa{background:var(--magenta);color:#fff;border:2px solid var(--magenta)}
+  nav button{padding:8px 14px;font-size:.85rem}
+  .tab-insp{background:var(--teal)}
+  .tab-mao{background:var(--laranja)}
+  .tab-nuvem{background:var(--azul)}
+  nav button.inativa{background:#e8e8e8;color:#666}
+  nav button:hover{box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .board-wrap{max-height:720px;overflow:auto;border-radius:14px;border:2px dashed #ddd;background:repeating-linear-gradient(45deg,#fafafa,#fafafa 12px,#f3f0e8 12px,#f3f0e8 24px)}
+  .postit-comentarios{margin-top:6px;font-family:Arial;font-size:.72rem}
+  .postit-comentarios summary{cursor:pointer;color:#444;font-weight:600}
+  .postit-comentarios .com{background:rgba(255,255,255,.6);border-radius:6px;padding:4px 6px;margin-top:4px}
+  .postit-comentarios .com .a{font-size:.65rem;color:#666;display:block}
+  .postit-comentarios textarea{width:100%;border:1px solid #ccc;border-radius:6px;padding:4px;font-size:.72rem;margin-top:4px;font-family:Arial;resize:vertical;min-height:30px}
+  .nuvem{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;padding:24px;background:#fff;border-radius:14px;min-height:240px}
+  .nuvem span{display:inline-block;padding:4px 8px;font-weight:600;cursor:default;transition:.2s}
+  .nuvem span:hover{transform:scale(1.15)}
+  .status-table{width:100%;border-collapse:collapse;font-size:.85rem}
+  .status-table th,.status-table td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  .status-table th{background:var(--suave);color:var(--azul)}
+  .status-table .ok{color:var(--verde);font-weight:700}
+  .status-table .nao{color:#bbb}
   .gal-card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
   .gal-card a{color:var(--azul);text-decoration:none;font-weight:600}
   .gal-card a:hover{color:var(--magenta)}
@@ -159,8 +196,10 @@
     <h1>Recursos Pedagógicos</h1>
   </div>
   <nav style="display:flex;gap:8px">
-    <button id="tabInsp" class="ghost small" onclick="trocarTela('inspiracoes')">🎨 Inspirações</button>
-    <button id="tabMao" class="small" onclick="trocarTela('maonamassa')">✋ Mão na massa</button>
+    <button id="tabInsp" class="tab-insp" onclick="trocarTela('inspiracoes')">🎨 Inspirações</button>
+    <button id="tabMao" class="tab-mao" onclick="trocarTela('maonamassa')">✋ Mão na massa</button>
+    <button id="tabNuvem" class="tab-nuvem" onclick="trocarTela('nuvem')">☁ Nuvem</button>
+    <button id="tabReflexao" class="tab-reflexao" onclick="trocarTela('reflexao')">💭 Para refletir</button>
   </nav>
   <div class="user-area" id="userArea">
     <button onclick="showLogin()">Entrar / Cadastrar</button>
@@ -175,39 +214,54 @@
 </div>
 
 <div id="telaInspiracoes">
-<section>
-  <h3>🎨 Galeria de Inspirações</h3>
-  <p>Explore possibilidades de artefatos e recursos digitais. Comente se estas ideias te inspiram em algo ou se conhece outras possibilidades para estas categorias ou para outras que poderiam ser criadas.</p>
+<section style="padding:18px 22px">
+  <h3 style="font-size:1.1rem;margin-bottom:6px">🎨 Galeria de Inspirações</h3>
+  <p style="font-size:.85rem;color:#666;margin:0 0 12px">Explore artefatos e recursos digitais. Comente se te inspiram ou se conhece outras possibilidades.</p>
 
-  <h4>Formação e compartilhamento</h4>
-  <div class="gallery">
-    <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/fichas-letramento/" target="_blank">Cards Letramento e Alfabetização →</a></div>
-    <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/vigoskin/" target="_blank">Reflexões sobre casos Vigoskin →</a></div>
-    <div class="gal-card cat-1"><a href="http://engrenar.com.br/equidade" target="_blank">App Equidade →</a></div>
-  </div>
+  <details class="gal-group" open>
+    <summary>Formação e compartilhamento</summary>
+    <div class="gallery">
+      <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/fichas-letramento/" target="_blank">Cards Letramento →</a></div>
+      <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/vigoskin/" target="_blank">Casos Vigoskin →</a></div>
+      <div class="gal-card cat-1"><a href="http://engrenar.com.br/equidade" target="_blank">App Equidade →</a></div>
+    </div>
+  </details>
 
-  <h4>Galeria de jogos e artefatos</h4>
-  <div class="gallery">
-    <div class="gal-card cat-2"><a href="https://padlet.com/designcriativo/aprendizagemcriativaia" target="_blank">Produções do Webinar Escolas Criativas →</a></div>
-  </div>
+  <details class="gal-group">
+    <summary>Jogos e artefatos</summary>
+    <div class="gallery">
+      <div class="gal-card cat-2"><a href="https://padlet.com/designcriativo/aprendizagemcriativaia" target="_blank">Webinar Escolas Criativas →</a></div>
+    </div>
+  </details>
 
-  <h4>Recurso para auto-avaliação</h4>
-  <div class="gallery">
-    <div class="gal-card cat-3"><a href="https://maryandrioli.github.io/indicadoresTA/" target="_blank">Indicadores de Tecnologia Assistiva →</a></div>
-    <div class="gal-card cat-3"><a href="https://passaporteparaaprendizagem.casadaarvore.art.br/PPP/autoavaliacao_PPP.html" target="_blank">Auto-avaliação PPP →</a></div>
-  </div>
+  <details class="gal-group">
+    <summary>Auto-avaliação</summary>
+    <div class="gallery">
+      <div class="gal-card cat-3"><a href="https://maryandrioli.github.io/indicadoresTA/" target="_blank">Indicadores TA →</a></div>
+      <div class="gal-card cat-3"><a href="https://passaporteparaaprendizagem.casadaarvore.art.br/PPP/autoavaliacao_PPP.html" target="_blank">Auto-avaliação PPP →</a></div>
+    </div>
+  </details>
 
-  <h4>Suporte para dúvidas e pedagógico</h4>
-  <div class="gallery">
-    <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-689249c6556c8191b25f2ed6140c0ad3-estagio-pedagogia-ifsp" target="_blank">Tira dúvidas de estágio →</a></div>
-    <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-6814c685dccc81918d38624d1c5c1ead-assistente-de-planejamento-tc" target="_blank">Assistente de planejamento →</a></div>
-    <div class="gal-card cat-4"><a href="https://maryandrioli.github.io/estagiopedagogia/" target="_blank">Gerador de Termo de Estágio →</a></div>
-    <div class="gal-card cat-4">Guia do estágio supervisionado Pedagogia</div>
-  </div>
+  <details class="gal-group">
+    <summary>Suporte pedagógico</summary>
+    <div class="gallery">
+      <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-689249c6556c8191b25f2ed6140c0ad3-estagio-pedagogia-ifsp" target="_blank">Tira dúvidas estágio →</a></div>
+      <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-6814c685dccc81918d38624d1c5c1ead-assistente-de-planejamento-tc" target="_blank">Assistente planejamento →</a></div>
+      <div class="gal-card cat-4"><a href="https://maryandrioli.github.io/estagiopedagogia/" target="_blank">Termo de Estágio →</a></div>
+      <div class="gal-card cat-4">Guia estágio Pedagogia</div>
+    </div>
+  </details>
 </section>
 
-<section>
-  <h3>✋ Mão na massa — Pensando juntos na mesma mesa</h3>
+<div style="text-align:center;margin:24px 0">
+  <button onclick="trocarTela('maonamassa')" style="font-size:1.05rem;padding:14px 32px">✋ Ir para Mão na Massa →</button>
+</div>
+
+</div><!-- /telaInspiracoes -->
+
+<div id="telaMaonamassa">
+<section style="padding:32px;background:linear-gradient(180deg,#fff,#fffbf3)">
+  <h3 style="font-size:1.6rem">✋ Mão na massa — Pensando juntos na mesma mesa</h3>
   <p>Vamos imaginar que estamos juntos, todos pensando juntos, em uma mesma mesa cheia de post-its. <strong>Faça login</strong> para incluir e arrastar seus post-its. Você só pode editar e mover os seus — se ver um igual ao seu, curta e apague o seu próprio. 💛</p>
 
   <div class="postit-toolbar" id="postitToolbar" style="display:none">
@@ -222,8 +276,26 @@
     <div>💗 <strong>Magenta:</strong> Compartilhe sua ideia/prompt, link do artefato criado ou arquivo.</div>
   </div>
 
-  <div class="board" id="board"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    <strong style="margin-right:6px">🏠 Salas:</strong>
+    <button class="sala-btn" data-sala="1" onclick="trocarSala(1)">Sala 1</button>
+    <button class="sala-btn" data-sala="2" onclick="trocarSala(2)">Sala 2</button>
+    <button class="sala-btn" data-sala="3" onclick="trocarSala(3)">Sala 3</button>
+    <button class="sala-btn" data-sala="4" onclick="trocarSala(4)">Sala 4</button>
+    <span style="flex:1"></span>
+    <strong>🔍</strong>
+    <button class="small ghost" onclick="zoom(-0.1)">−</button>
+    <button class="small ghost" onclick="zoomReset()">100%</button>
+    <button class="small ghost" onclick="zoom(0.1)">+</button>
+    <span id="zoomLabel" style="font-size:.8rem;color:#666;min-width:40px">100%</span>
+  </div>
+  <div class="board-wrap"><div class="board" id="board" style="min-height:680px;transform-origin:0 0"></div></div>
+
+  <div style="text-align:center;margin-top:18px">
+    <button class="ghost" onclick="trocarTela('inspiracoes')">← Voltar para Inspirações</button>
+  </div>
 </section>
+</div><!-- /telaMaonamassa -->
 
 <section id="adminPanel" style="display:none">
   <h3>⚙️ Painel do Administrador</h3>
@@ -234,12 +306,46 @@
   </div>
   <h4>Pessoas cadastradas</h4>
   <div class="users-list" id="usersList"></div>
+
+  <h4>📊 Status de participação</h4>
+  <div style="overflow-x:auto"><table class="status-table" id="statusTable"></table></div>
 </section>
+
+<div id="telaReflexao">
+<section style="padding:32px">
+  <h3 style="font-size:1.5rem">💭 Para refletir</h3>
+  <p style="color:#555;font-size:.95rem">Avalie até que ponto nossas ideias e propostas podem contribuir em cada um dos aspectos a seguir:</p>
+  <div style="display:flex;gap:16px;align-items:center;background:var(--suave);padding:10px 14px;border-radius:10px;margin-bottom:18px;font-size:.85rem;flex-wrap:wrap">
+    <span><span class="bola verde" style="display:inline-block;width:18px;height:18px;border:none;vertical-align:middle"></span> Atingindo completamente</span>
+    <span><span class="bola amarela" style="display:inline-block;width:18px;height:18px;border:none;vertical-align:middle"></span> Parcialmente</span>
+    <span><span class="bola vermelha" style="display:inline-block;width:18px;height:18px;border:none;vertical-align:middle"></span> Ainda está longe</span>
+  </div>
+  <div id="reflexaoLista"></div>
+  <div style="text-align:center;margin-top:18px">
+    <button class="ghost" onclick="trocarTela('maonamassa')">← Voltar para Mão na Massa</button>
+  </div>
+</section>
+</div>
+
+<div id="telaNuvem">
+<section style="padding:32px">
+  <h3 style="font-size:1.5rem">☁ Nuvem de palavras</h3>
+  <p style="color:#666;font-size:.9rem">Termos mais frequentes nos post-its de desafios (amarelo) e ideias (verde).</p>
+  <h4 style="color:var(--laranja)">💛 Desafios</h4>
+  <div class="nuvem" id="nuvemDesafios"></div>
+  <h4 style="color:var(--verde)">💚 Ideias</h4>
+  <div class="nuvem" id="nuvemIdeias"></div>
+  <div style="text-align:center;margin-top:18px">
+    <button class="ghost" onclick="trocarTela('maonamassa')">← Voltar para Mão na Massa</button>
+  </div>
+</section>
+</div>
 
 </main>
 
 <footer>
-  Instituto Escolas Criativas · Espaço de criação coletiva de recursos pedagógicos
+  Instituto Escolas Criativas · Espaço de criação coletiva de recursos pedagógicos<br>
+  <strong>@maryandrioli</strong>
 </footer>
 
 <!-- MODAIS -->
@@ -253,7 +359,7 @@
     <div class="form-row">
       <label>Senha</label>
       <input type="password" id="loginSenha" placeholder="Senha"/>
-      <div class="login-hint">A senha padrão de participantes é <span class="pill">quatroPs*</span></div>
+      <div class="login-hint">Use a senha que recebeu no cadastro.</div>
     </div>
     <div class="form-actions">
       <button class="ghost" onclick="fecharModal('modalLogin')">Cancelar</button>
@@ -273,7 +379,10 @@
       <label>E-mail</label>
       <input type="email" id="cadEmail"/>
     </div>
-    <div class="login-hint">A senha será definida automaticamente como <span class="pill">quatroPs*</span></div>
+    <div class="form-row">
+      <label>Senha (opcional)</label>
+      <input id="cadSenha" placeholder="Deixe em branco para senha padrão"/>
+    </div>
     <div class="form-actions">
       <button class="ghost" onclick="fecharModal('modalCadastro')">Cancelar</button>
       <button onclick="cadastrarUm()">Cadastrar</button>
@@ -284,9 +393,9 @@
 <div class="modal" id="modalMassa">
   <div class="modal-content">
     <h3>Cadastro em massa</h3>
-    <p style="font-size:.85rem;color:#666">Cole uma pessoa por linha, no formato:<br><code>Nome, email, quatroPs*</code></p>
+    <p style="font-size:.85rem;color:#666">Cole uma pessoa por linha, no formato:<br><code>Nome, email, senha</code><br>Cada pessoa pode ter senha diferente.</p>
     <div class="form-row">
-      <textarea id="massaText" placeholder="Maria Silva, maria@email.com, quatroPs*&#10;João Souza, joao@email.com, quatroPs*"></textarea>
+      <textarea id="massaText" placeholder="Maria Silva, maria@email.com, minhasenha&#10;João Souza, joao@email.com, outraSenha123"></textarea>
     </div>
     <div class="form-actions">
       <button class="ghost" onclick="fecharModal('modalMassa')">Cancelar</button>
@@ -340,16 +449,32 @@ let db = {
   postits: []
 };
 
-function salvar(){ localStorage.setItem('ec_db', JSON.stringify(db)); }
+function salvar(){
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbSave) window.fbSave(db);
+}
 function carregar(){
   const s = localStorage.getItem('ec_db');
   if(s) db = JSON.parse(s);
   if(!db.usuarios.some(u=>u.email===ADMIN_EMAIL)){
     db.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
-    salvar();
   }
 }
 carregar();
+
+window.aplicarRemoto = function(remoto){
+  if(!remoto) return;
+  db = remoto;
+  if(!db.usuarios) db.usuarios = [];
+  if(!db.postits) db.postits = [];
+  if(!db.usuarios.some(u=>u.email===ADMIN_EMAIL)){
+    db.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
+  }
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  window.db = db;
+  try{ renderBoard(); renderUsers(); renderReflexao(); renderNuvem(); }catch(e){}
+};
+window.db = db;
 
 let sessao = JSON.parse(sessionStorage.getItem('ec_sessao') || 'null');
 
@@ -397,11 +522,12 @@ function logout(){ sessao=null; sessionStorage.removeItem('ec_sessao'); renderUs
 function cadastrarUm(){
   const nome = document.getElementById('cadNome').value.trim();
   const email = document.getElementById('cadEmail').value.trim().toLowerCase();
+  const senha = document.getElementById('cadSenha').value.trim() || SENHA_PADRAO;
   if(!nome || !email){ toast('Preencha nome e e-mail'); return; }
   if(db.usuarios.some(u=>u.email.toLowerCase()===email)){ toast('E-mail já cadastrado'); return; }
-  db.usuarios.push({nome, email, senha:SENHA_PADRAO});
+  db.usuarios.push({nome, email, senha});
   salvar(); fecharModal('modalCadastro');
-  document.getElementById('cadNome').value=''; document.getElementById('cadEmail').value='';
+  document.getElementById('cadNome').value=''; document.getElementById('cadEmail').value=''; document.getElementById('cadSenha').value='';
   renderUsers(); toast('Cadastrado com sucesso!');
 }
 
@@ -412,10 +538,10 @@ function cadastrarMassa(){
   txt.split(/\n+/).forEach(linha=>{
     const partes = linha.split(',').map(s=>s.trim());
     if(partes.length<2) return;
-    const [nome,email] = partes;
+    const [nome,email,senhaOpt] = partes;
     if(!nome||!email) return;
     if(db.usuarios.some(u=>u.email.toLowerCase()===email.toLowerCase())){ skip++; return; }
-    db.usuarios.push({nome, email:email.toLowerCase(), senha:SENHA_PADRAO});
+    db.usuarios.push({nome, email:email.toLowerCase(), senha: senhaOpt || SENHA_PADRAO});
     add++;
   });
   salvar(); fecharModal('modalMassa');
@@ -500,8 +626,9 @@ async function salvarPostit(){
       conteudo, link, arquivo,
       categoria: corAtual==='amarelo'?categoria:null,
       autor: sessao.email, autorNome: sessao.nome,
+      sala: salaAtual,
       x: 20+Math.random()*60, y: 20+Math.random()*40,
-      likes: [], criado: Date.now()
+      likes: [], comentarios: [], lidoPor: [], criado: Date.now()
     });
   }
   salvar(); fecharModal('modalPostit'); renderBoard();
@@ -512,10 +639,54 @@ function linkificar(t){
   return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank">$1</a>');
 }
 
+function marcarLeitura(){
+  if(!sessao) return;
+  db.postits.forEach(p=>{
+    if(p.autor===sessao.email) return;
+    p.lidoPor = p.lidoPor || [];
+    if(!p.lidoPor.includes(sessao.email)) p.lidoPor.push(sessao.email);
+  });
+  salvar();
+}
+
+let salaAtual = parseInt(localStorage.getItem('ec_sala')||'1');
+let zoomAtual = parseFloat(localStorage.getItem('ec_zoom')||'1');
+
+function trocarSala(n){
+  salaAtual = n;
+  localStorage.setItem('ec_sala', n);
+  renderBoard();
+}
+function zoom(d){
+  zoomAtual = Math.max(0.5, Math.min(2, zoomAtual+d));
+  localStorage.setItem('ec_zoom', zoomAtual);
+  aplicarZoom();
+}
+function zoomReset(){ zoomAtual=1; localStorage.setItem('ec_zoom',1); aplicarZoom(); }
+function aplicarZoom(){
+  const b = document.getElementById('board');
+  if(!b) return;
+  b.style.transform = `scale(${zoomAtual})`;
+  b.style.width = (100/zoomAtual)+'%';
+  const lab = document.getElementById('zoomLabel');
+  if(lab) lab.textContent = Math.round(zoomAtual*100)+'%';
+}
+
 function renderBoard(){
   const board = document.getElementById('board');
+  if(!board) return;
+  document.querySelectorAll('.sala-btn').forEach(b=>{
+    const n = parseInt(b.dataset.sala);
+    const qt = db.postits.filter(p=>(p.sala||1)===n).length;
+    b.classList.toggle('ativa', n===salaAtual);
+    b.innerHTML = `Sala ${n}<span class="qt">${qt}</span>`;
+  });
   board.innerHTML = '';
-  db.postits.forEach(p=>{
+  marcarLeitura();
+  const lista = db.postits.filter(p=>(p.sala||1)===salaAtual);
+  lista.forEach(p=>{
+    p.comentarios = p.comentarios || [];
+    p.lidoPor = p.lidoPor || [];
     const el = document.createElement('div');
     el.className = 'postit '+p.cor;
     el.style.left = p.x+'%';
@@ -532,6 +703,9 @@ function renderBoard(){
     let catHtml = p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : '';
     let curtido = sessao && p.likes.includes(sessao.email);
 
+    const comentariosHtml = p.comentarios.map(c=>`
+        <div class="com"><span class="a">${c.autor} · ${new Date(c.t).toLocaleDateString('pt-BR')}</span>${c.texto}</div>`).join('');
+
     el.innerHTML = `
       <div class="meta">
         <span>${p.autorNome||'?'}</span>
@@ -542,7 +716,13 @@ function renderBoard(){
         <button class="small" onclick="curtir('${p.id}')" style="background:${curtido?'#E5197F':'#888'}">❤ <span class="likes">${p.likes.length}</span></button>
         ${meuPostit?`<button class="small alt" onclick="abrirPostit('${p.cor}','${p.id}')">✏</button>`:''}
         ${podeApagar?`<button class="small danger" onclick="apagar('${p.id}')">🗑</button>`:''}
-      </div>`;
+      </div>
+      <details class="postit-comentarios">
+        <summary>💬 Comentários (${p.comentarios.length})</summary>
+        ${comentariosHtml}
+        ${sessao?`<textarea id="com-${p.id}" placeholder="Comente..."></textarea>
+          <button class="small" onclick="comentar('${p.id}')" style="margin-top:4px;background:var(--azul)">Comentar</button>`:''}
+      </details>`;
     if(meuPostit) tornarArrastavel(el, p);
     board.appendChild(el);
   });
@@ -628,9 +808,187 @@ function tornarArrastavel(el, p){
   });
 }
 
+function comentar(id){
+  if(!sessao){ toast('Faça login'); return; }
+  const t = document.getElementById('com-'+id);
+  if(!t || !t.value.trim()) return;
+  const p = db.postits.find(x=>x.id===id);
+  p.comentarios = p.comentarios || [];
+  p.comentarios.push({autor:sessao.nome, email:sessao.email, texto:t.value.trim(), t:Date.now()});
+  salvar(); renderBoard();
+}
+
+function trocarTela(t){
+  document.getElementById('telaInspiracoes').style.display = t==='inspiracoes'?'block':'none';
+  document.getElementById('telaMaonamassa').style.display = t==='maonamassa'?'block':'none';
+  document.getElementById('telaNuvem').style.display = t==='nuvem'?'block':'none';
+  document.getElementById('telaReflexao').style.display = t==='reflexao'?'block':'none';
+  const tabs = {inspiracoes:'tabInsp',maonamassa:'tabMao',nuvem:'tabNuvem',reflexao:'tabReflexao'};
+  Object.values(tabs).forEach(id=>{
+    document.getElementById(id).classList.toggle('inativa', tabs[t]!==id);
+  });
+  if(t==='nuvem') renderNuvem();
+  if(t==='maonamassa') renderBoard();
+  if(t==='reflexao') renderReflexao();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+const ITENS_REFLEXAO = [
+  {k:'ideias', titulo:'PODEROSAS IDEIAS', desc:'… a realizar conexões com ideias que os apoiam na construção de significados?'},
+  {k:'projetos', titulo:'PROJETOS', desc:'… a criar algo que possa ser compartilhado com outras pessoas?'},
+  {k:'paixao', titulo:'PAIXÃO', desc:'… a expressar e explorar temas pessoalmente relevantes, valorizando os interesses e necessidades dos participantes?'},
+  {k:'pares', titulo:'PARES', desc:'… a colaborar, compartilhar ideias e a interagir?'},
+  {k:'brincando', titulo:'PENSAR BRINCANDO', desc:'… a explorar ideias, ferramentas e materiais, a experimentar e vivenciar um processo de aprendizagem alimentado pela curiosidade?'},
+  {k:'proposito', titulo:'PROPÓSITO', desc:'… a impactar pessoas ou espaços para além da iniciativa, a engajarem-se com questões que permitam a participação social?'}
+];
+
+function renderReflexao(){
+  const el = document.getElementById('reflexaoLista');
+  if(!el) return;
+  db.reflexoes = db.reflexoes || {};
+  el.innerHTML = ITENS_REFLEXAO.map(it=>{
+    const votos = db.reflexoes[it.k] || {};
+    const meu = sessao ? votos[sessao.email] : null;
+    const counts = {verde:0,amarela:0,vermelha:0};
+    Object.values(votos).forEach(v=>{ if(counts[v]!=null) counts[v]++; });
+    const total = counts.verde+counts.amarela+counts.vermelha;
+    const pct = c => total? (c/total*100).toFixed(0)+'%' : '0%';
+    const bola = (cor,label) => `<div class="bola ${cor} ${meu===cor?'sel':(meu?'off':'')}" title="${label}" onclick="votarReflexao('${it.k}','${cor}')"></div>`;
+    return `<div class="reflexao-item">
+      <h4>${it.titulo}</h4>
+      <p>${it.desc}</p>
+      <div class="bolinhas">
+        ${sessao?bola('verde','Atingindo completamente'):''}
+        ${sessao?bola('amarela','Parcialmente'):''}
+        ${sessao?bola('vermelha','Ainda está longe'):''}
+        ${!sessao?'<em style="color:#999;font-size:.85rem">Faça login para votar</em>':''}
+      </div>
+      <div class="resumo-reflexao">
+        <div class="barra">
+          <div style="width:${pct(counts.verde)};background:#2BB673"></div>
+          <div style="width:${pct(counts.amarela)};background:#FFC107"></div>
+          <div style="width:${pct(counts.vermelha)};background:#E53935"></div>
+        </div>
+        <span>${total} voto(s) · 💚 ${counts.verde} · 💛 ${counts.amarela} · ❤️ ${counts.vermelha}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function votarReflexao(k,cor){
+  if(!sessao){ toast('Faça login para votar'); return; }
+  db.reflexoes = db.reflexoes || {};
+  db.reflexoes[k] = db.reflexoes[k] || {};
+  if(db.reflexoes[k][sessao.email]===cor) delete db.reflexoes[k][sessao.email];
+  else db.reflexoes[k][sessao.email] = cor;
+  salvar(); renderReflexao();
+}
+
+const STOPWORDS = new Set('a o e de da do das dos para por com em no na nos nas um uma uns umas que se os as ao à aos às é são ser está estão estar muito mais menos como qual quais quando onde porque pois mas ou nem também já não sim nosso nossa nossos nossas meu minha seus suas eles elas nós você vocês tem ter há ainda isso isto esse essa este esta esses essas aquele aquela só pelo pela pelos pelas até entre sobre sem'.split(/\s+/));
+
+function renderNuvem(){
+  const por = {amarelo:{}, verde:{}};
+  db.postits.forEach(p=>{
+    if(!por[p.cor]) return;
+    (p.conteudo||'').toLowerCase().replace(/[.,;:!?()"'\[\]]/g,' ').split(/\s+/).forEach(w=>{
+      if(w.length<4||STOPWORDS.has(w)) return;
+      por[p.cor][w] = (por[p.cor][w]||0)+1;
+    });
+  });
+  const cores = ['#E5197F','#F39200','#2BB673','#1FB5A8','#2E3192','#F25CA2'];
+  function pinta(el, freq){
+    const entries = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,40);
+    if(!entries.length){ el.innerHTML='<em style="color:#999">Sem dados ainda</em>'; return; }
+    const max = entries[0][1];
+    el.innerHTML = entries.map(([w,n],i)=>{
+      const tam = 0.85 + (n/max)*2.0;
+      return `<span style="font-size:${tam.toFixed(2)}rem;color:${cores[i%cores.length]}" title="${n}x">${w}</span>`;
+    }).join('');
+  }
+  pinta(document.getElementById('nuvemDesafios'), por.amarelo);
+  pinta(document.getElementById('nuvemIdeias'),  por.verde);
+}
+
+function renderStatus(){
+  const tb = document.getElementById('statusTable');
+  if(!tb) return;
+  const others = ()=> db.postits.filter(p=>true);
+  const total = db.postits.length;
+  let head = `<thead><tr><th>Pessoa</th><th>Contribuiu?</th><th>Áreas</th><th>Post-its lidos</th><th>Curtidas dadas</th><th>Comentários</th></tr></thead><tbody>`;
+  let rows = db.usuarios.map(u=>{
+    const meus = db.postits.filter(p=>p.autor===u.email);
+    const areas = new Set();
+    meus.forEach(p=>{
+      areas.add(p.cor==='amarelo'?(p.categoria||'desafio'):(p.cor==='verde'?'ideia':'compartilhar'));
+    });
+    const lidos = db.postits.filter(p=>p.autor!==u.email && (p.lidoPor||[]).includes(u.email)).length;
+    const lidosTotal = db.postits.filter(p=>p.autor!==u.email).length;
+    const curtidasDadas = db.postits.filter(p=>(p.likes||[]).includes(u.email)).length;
+    const comentariosFeitos = db.postits.reduce((s,p)=>s+(p.comentarios||[]).filter(c=>c.email===u.email).length,0);
+    return `<tr>
+      <td>${u.admin?'👑 ':''}<strong>${u.nome}</strong><br><small>${u.email}</small></td>
+      <td class="${meus.length?'ok':'nao'}">${meus.length?'✓ '+meus.length:'—'}</td>
+      <td>${[...areas].join(', ')||'<span class="nao">—</span>'}</td>
+      <td>${lidos}/${lidosTotal}</td>
+      <td>${curtidasDadas}</td>
+      <td>${comentariosFeitos}</td>
+    </tr>`;
+  }).join('');
+  tb.innerHTML = head+rows+'</tbody>';
+}
+
+const _oldRenderBoard = renderBoard;
+renderBoard = function(){ _oldRenderBoard(); renderStatus(); };
+const _oldRenderUsers = renderUsers;
+renderUsers = function(){ _oldRenderUsers(); renderStatus(); };
+trocarTela('inspiracoes');
 renderUserArea();
 renderBoard();
+aplicarZoom();
 </script>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNZKwXZ7QSgqhNoam071WokVDO8oePMvI",
+  authDomain: "escolascriativas-a0401.firebaseapp.com",
+  projectId: "escolascriativas-a0401",
+  storageBucket: "escolascriativas-a0401.firebasestorage.app",
+  messagingSenderId: "182702994351",
+  appId: "1:182702994351:web:7dfb180a029e686010b55a"
+};
+
+const app = initializeApp(firebaseConfig);
+const fdb = getFirestore(app);
+const ref = doc(fdb, "escolas", "state");
+
+let ignorarProximo = false;
+
+window.fbSave = async function(dbObj){
+  try{
+    ignorarProximo = true;
+    await setDoc(ref, { json: JSON.stringify(dbObj), atualizado: Date.now() });
+  }catch(e){ console.warn("fbSave erro", e); }
+};
+
+onSnapshot(ref, snap => {
+  if(!snap.exists()) {
+    if(window.fbSave && window.db) window.fbSave(window.db);
+    return;
+  }
+  if(ignorarProximo){ ignorarProximo=false; return; }
+  const data = snap.data();
+  if(data && data.json){
+    try{
+      const remoto = JSON.parse(data.json);
+      window.aplicarRemoto(remoto);
+    }catch(e){ console.warn("parse erro", e); }
+  }
+}, err => console.warn("onSnapshot erro", err));
+
+console.log("✓ Firebase conectado");
+</script>
 </body>
 </html>
