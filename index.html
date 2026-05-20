@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Criação de Recursos Pedagógicos — Escolas Criativas</title>
+<style>
+  :root{
+    --magenta:#E5197F;
+    --rosa:#F25CA2;
+    --azul:#2E3192;
+    --laranja:#F39200;
+    --amarelo:#FFD23F;
+    --verde:#2BB673;
+    --teal:#1FB5A8;
+    --bg:#FAF7F2;
+    --texto:#2A2A3A;
+    --suave:#F1ECE4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:'Segoe UI',Tahoma,sans-serif;
+    background:var(--bg);color:var(--texto);line-height:1.5;
+  }
+  header{
+    background:linear-gradient(135deg,#fff 0%, #fff8ef 100%);
+    padding:24px 32px;border-bottom:4px solid var(--magenta);
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .logo{display:flex;align-items:center;gap:14px}
+  .logo-mark{
+    width:54px;height:54px;border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, var(--teal) 0 8px, transparent 9px),
+      radial-gradient(circle at 70% 25%, var(--laranja) 0 7px, transparent 8px),
+      radial-gradient(circle at 80% 70%, var(--azul) 0 8px, transparent 9px),
+      radial-gradient(circle at 25% 75%, var(--amarelo) 0 7px, transparent 8px),
+      radial-gradient(circle at 50% 55%, var(--magenta) 0 14px, transparent 15px),
+      #fff;
+    border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+  .logo h1{margin:0;font-size:1.05rem;color:var(--azul);line-height:1.1;font-weight:600}
+  .user-area{display:flex;align-items:center;gap:10px;font-size:.9rem}
+  .badge{background:var(--magenta);color:#fff;padding:4px 10px;border-radius:20px;font-size:.78rem}
+  .badge.admin{background:var(--azul)}
+  button,.btn{
+    cursor:pointer;border:none;padding:10px 18px;border-radius:24px;
+    background:var(--magenta);color:#fff;font-weight:600;transition:.2s;font-size:.9rem;
+  }
+  button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(229,25,127,.3)}
+  button.alt{background:var(--azul)}
+  button.ghost{background:transparent;color:var(--magenta);border:2px solid var(--magenta)}
+  button.small{padding:5px 10px;font-size:.75rem}
+  button.danger{background:#c0392b}
+
+  main{max-width:1200px;margin:0 auto;padding:32px 24px}
+  .hero{
+    background:linear-gradient(135deg,#fff7fb 0%, #f0f7ff 100%);
+    color:var(--texto);padding:22px 26px;border-radius:16px;margin-bottom:22px;
+    border-left:6px solid var(--magenta);
+  }
+  .hero h2{margin:0 0 6px;font-size:1.4rem;color:var(--magenta)}
+  .hero p{font-size:.95rem;opacity:.85;margin:0}
+
+  section{background:#fff;border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 2px 16px rgba(0,0,0,.04)}
+  section h3{margin-top:0;color:var(--azul);font-size:1.35rem;border-left:5px solid var(--magenta);padding-left:12px}
+  section h4{color:var(--magenta);margin:18px 0 8px}
+
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+  .gal-card{
+    background:var(--suave);border-radius:10px;padding:10px 12px;
+    border-left:4px solid var(--teal);transition:.2s;font-size:.85rem;
+  }
+  details.gal-group{margin:8px 0}
+  details.gal-group summary{cursor:pointer;font-weight:600;color:var(--magenta);padding:6px 0;font-size:.95rem}
+  #telaMaonamassa{display:none}
+  .tela-ativa{display:block !important}
+  nav button.ativa{background:var(--magenta);color:#fff;border:2px solid var(--magenta)}
+  .gal-card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+  .gal-card a{color:var(--azul);text-decoration:none;font-weight:600}
+  .gal-card a:hover{color:var(--magenta)}
+  .gal-card.cat-1{border-color:var(--teal)}
+  .gal-card.cat-2{border-color:var(--laranja)}
+  .gal-card.cat-3{border-color:var(--amarelo)}
+  .gal-card.cat-4{border-color:var(--azul)}
+
+  /* Post-its */
+  .postit-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+  .postit-toolbar select,.postit-toolbar input,.postit-toolbar textarea{
+    padding:8px 12px;border:2px solid #ddd;border-radius:8px;font-family:inherit;font-size:.9rem;
+  }
+  .board{
+    position:relative;min-height:520px;background:
+      repeating-linear-gradient(45deg,#fafafa,#fafafa 12px,#f3f0e8 12px,#f3f0e8 24px);
+    border-radius:14px;padding:18px;overflow:hidden;border:2px dashed #ddd;
+  }
+  .postit{
+    position:absolute;width:180px;min-height:160px;padding:14px;border-radius:4px;
+    box-shadow:3px 5px 12px rgba(0,0,0,.15);cursor:grab;
+    font-family:'Comic Sans MS',cursive;font-size:.88rem;
+    transform:rotate(-2deg);transition:transform .2s, box-shadow .2s;
+    display:flex;flex-direction:column;
+  }
+  .postit:hover{transform:rotate(0deg) scale(1.03);z-index:50;box-shadow:5px 8px 18px rgba(0,0,0,.25)}
+  .postit.amarelo{background:#FFF59D}
+  .postit.verde{background:#A5D6A7}
+  .postit.magenta{background:#F8BBD0}
+  .postit .meta{font-size:.7rem;opacity:.75;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-family:Arial}
+  .postit .conteudo{flex:1;word-wrap:break-word;white-space:pre-wrap}
+  .postit .conteudo a{color:var(--azul);font-weight:700}
+  .postit .actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;font-family:Arial}
+  .postit .actions button{padding:3px 8px;font-size:.7rem;border-radius:12px}
+  .postit .cat-tag{background:rgba(0,0,0,.1);padding:2px 6px;border-radius:8px;font-size:.65rem}
+  .postit .likes{font-size:.8rem;font-family:Arial}
+
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;
+    align-items:center;justify-content:center;z-index:1000;padding:16px;
+  }
+  .modal.show{display:flex}
+  .modal-content{
+    background:#fff;border-radius:16px;padding:28px;max-width:520px;width:100%;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-content h3{margin-top:0;color:var(--azul)}
+  .form-row{margin-bottom:14px}
+  .form-row label{display:block;margin-bottom:5px;font-weight:600;font-size:.9rem}
+  .form-row input, .form-row textarea, .form-row select{
+    width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-family:inherit;font-size:.9rem;
+  }
+  .form-row textarea{min-height:100px;resize:vertical}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .login-hint{font-size:.8rem;color:#777;margin-top:6px}
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--azul);color:#fff;
+    padding:12px 20px;border-radius:8px;z-index:2000;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2);
+  }
+  .toast.show{display:block}
+
+  .users-list{max-height:280px;overflow-y:auto;border:1px solid #eee;border-radius:8px;padding:8px}
+  .user-row{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid #f0f0f0;font-size:.85rem;align-items:center}
+  .user-row:last-child{border:none}
+
+  footer{text-align:center;padding:24px;color:#888;font-size:.85rem}
+  .pill{display:inline-block;background:var(--amarelo);color:var(--texto);padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:600}
+
+  @media (max-width:640px){
+    .postit{width:150px;min-height:140px;font-size:.8rem}
+    .hero{padding:24px}
+    main{padding:18px 12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <h1>Recursos Pedagógicos</h1>
+  </div>
+  <nav style="display:flex;gap:8px">
+    <button id="tabInsp" class="ghost small" onclick="trocarTela('inspiracoes')">🎨 Inspirações</button>
+    <button id="tabMao" class="small" onclick="trocarTela('maonamassa')">✋ Mão na massa</button>
+  </nav>
+  <div class="user-area" id="userArea">
+    <button onclick="showLogin()">Entrar / Cadastrar</button>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h2>Criação de Recursos Pedagógicos</h2>
+  <p>Vamos refletir sobre nossa caminhada até aqui e quais desafios permanecem. Exploraremos possibilidades, identificaremos os desafios em comum para criarmos recursos pedagógicos que favoreçam nossa intencionalidade pedagógica.</p>
+</div>
+
+<div id="telaInspiracoes">
+<section>
+  <h3>🎨 Galeria de Inspirações</h3>
+  <p>Explore possibilidades de artefatos e recursos digitais. Comente se estas ideias te inspiram em algo ou se conhece outras possibilidades para estas categorias ou para outras que poderiam ser criadas.</p>
+
+  <h4>Formação e compartilhamento</h4>
+  <div class="gallery">
+    <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/fichas-letramento/" target="_blank">Cards Letramento e Alfabetização →</a></div>
+    <div class="gal-card cat-1"><a href="https://maryandrioli.github.io/vigoskin/" target="_blank">Reflexões sobre casos Vigoskin →</a></div>
+    <div class="gal-card cat-1"><a href="http://engrenar.com.br/equidade" target="_blank">App Equidade →</a></div>
+  </div>
+
+  <h4>Galeria de jogos e artefatos</h4>
+  <div class="gallery">
+    <div class="gal-card cat-2"><a href="https://padlet.com/designcriativo/aprendizagemcriativaia" target="_blank">Produções do Webinar Escolas Criativas →</a></div>
+  </div>
+
+  <h4>Recurso para auto-avaliação</h4>
+  <div class="gallery">
+    <div class="gal-card cat-3"><a href="https://maryandrioli.github.io/indicadoresTA/" target="_blank">Indicadores de Tecnologia Assistiva →</a></div>
+    <div class="gal-card cat-3"><a href="https://passaporteparaaprendizagem.casadaarvore.art.br/PPP/autoavaliacao_PPP.html" target="_blank">Auto-avaliação PPP →</a></div>
+  </div>
+
+  <h4>Suporte para dúvidas e pedagógico</h4>
+  <div class="gallery">
+    <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-689249c6556c8191b25f2ed6140c0ad3-estagio-pedagogia-ifsp" target="_blank">Tira dúvidas de estágio →</a></div>
+    <div class="gal-card cat-4"><a href="https://chatgpt.com/g/g-6814c685dccc81918d38624d1c5c1ead-assistente-de-planejamento-tc" target="_blank">Assistente de planejamento →</a></div>
+    <div class="gal-card cat-4"><a href="https://maryandrioli.github.io/estagiopedagogia/" target="_blank">Gerador de Termo de Estágio →</a></div>
+    <div class="gal-card cat-4">Guia do estágio supervisionado Pedagogia</div>
+  </div>
+</section>
+
+<section>
+  <h3>✋ Mão na massa — Pensando juntos na mesma mesa</h3>
+  <p>Vamos imaginar que estamos juntos, todos pensando juntos, em uma mesma mesa cheia de post-its. <strong>Faça login</strong> para incluir e arrastar seus post-its. Você só pode editar e mover os seus — se ver um igual ao seu, curta e apague o seu próprio. 💛</p>
+
+  <div class="postit-toolbar" id="postitToolbar" style="display:none">
+    <button onclick="abrirPostit('amarelo')" style="background:#FFC107;color:#333">💛 Post-it amarelo (Desafio)</button>
+    <button onclick="abrirPostit('verde')" style="background:#4CAF50">💚 Post-it verde (Ideia)</button>
+    <button onclick="abrirPostit('magenta')" style="background:var(--magenta)">💗 Post-it magenta (Compartilhar)</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;margin-bottom:14px;font-size:.85rem">
+    <div>💛 <strong>Amarelo:</strong> Qual tem sido o maior desafio em nosso plano? Em qual área?</div>
+    <div>💚 <strong>Verde:</strong> Quais nossas ideias? O que poderíamos criar de ambientes, artefatos digitais ou físicos?</div>
+    <div>💗 <strong>Magenta:</strong> Compartilhe sua ideia/prompt, link do artefato criado ou arquivo.</div>
+  </div>
+
+  <div class="board" id="board"></div>
+</section>
+
+<section id="adminPanel" style="display:none">
+  <h3>⚙️ Painel do Administrador</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button onclick="showCadastro()">➕ Cadastrar pessoa</button>
+    <button class="alt" onclick="showCadastroMassa()">📋 Cadastro em massa</button>
+    <button class="ghost" onclick="exportarDados()">⬇ Exportar dados</button>
+  </div>
+  <h4>Pessoas cadastradas</h4>
+  <div class="users-list" id="usersList"></div>
+</section>
+
+</main>
+
+<footer>
+  Instituto Escolas Criativas · Espaço de criação coletiva de recursos pedagógicos
+</footer>
+
+<!-- MODAIS -->
+<div class="modal" id="modalLogin">
+  <div class="modal-content">
+    <h3>Entrar</h3>
+    <div class="form-row">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" placeholder="seu@email.com"/>
+    </div>
+    <div class="form-row">
+      <label>Senha</label>
+      <input type="password" id="loginSenha" placeholder="Senha"/>
+      <div class="login-hint">A senha padrão de participantes é <span class="pill">quatroPs*</span></div>
+    </div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharModal('modalLogin')">Cancelar</button>
+      <button onclick="fazerLogin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalCadastro">
+  <div class="modal-content">
+    <h3>Cadastrar nova pessoa</h3>
+    <div class="form-row">
+      <label>Nome</label>
+      <input id="cadNome"/>
+    </div>
+    <div class="form-row">
+      <label>E-mail</label>
+      <input type="email" id="cadEmail"/>
+    </div>
+    <div class="login-hint">A senha será definida automaticamente como <span class="pill">quatroPs*</span></div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharModal('modalCadastro')">Cancelar</button>
+      <button onclick="cadastrarUm()">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalMassa">
+  <div class="modal-content">
+    <h3>Cadastro em massa</h3>
+    <p style="font-size:.85rem;color:#666">Cole uma pessoa por linha, no formato:<br><code>Nome, email, quatroPs*</code></p>
+    <div class="form-row">
+      <textarea id="massaText" placeholder="Maria Silva, maria@email.com, quatroPs*&#10;João Souza, joao@email.com, quatroPs*"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharModal('modalMassa')">Cancelar</button>
+      <button onclick="cadastrarMassa()">Importar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalPostit">
+  <div class="modal-content">
+    <h3 id="postitTitulo">Novo post-it</h3>
+    <div class="form-row" id="rowCategoria" style="display:none">
+      <label>Área / Categoria</label>
+      <select id="postitCategoria">
+        <option value="formação">Formação</option>
+        <option value="engajamento">Engajamento</option>
+        <option value="suporte/acompanhamento">Suporte / Acompanhamento</option>
+        <option value="outros">Outros</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Conteúdo</label>
+      <textarea id="postitConteudo" placeholder="Escreva aqui..."></textarea>
+    </div>
+    <div class="form-row" id="rowLink" style="display:none">
+      <label>Link (opcional — será clicável)</label>
+      <input id="postitLink" placeholder="https://..."/>
+    </div>
+    <div class="form-row" id="rowArquivo" style="display:none">
+      <label>Arquivo (opcional — .html, imagens, pdf)</label>
+      <input type="file" id="postitArquivo" accept=".html,.htm,image/*,.pdf,.txt"/>
+      <div class="login-hint">Arquivos HTML abrirão em nova aba ao clicar no post-it.</div>
+    </div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharModal('modalPostit')">Cancelar</button>
+      <button onclick="salvarPostit()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DADOS ============ */
+const ADMIN_EMAIL = 'maryandrioli@gmail.com';
+const ADMIN_SENHA = '123mary';
+const SENHA_PADRAO = 'quatroPs*';
+
+let db = {
+  usuarios: [{nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true}],
+  postits: []
+};
+
+function salvar(){ localStorage.setItem('ec_db', JSON.stringify(db)); }
+function carregar(){
+  const s = localStorage.getItem('ec_db');
+  if(s) db = JSON.parse(s);
+  if(!db.usuarios.some(u=>u.email===ADMIN_EMAIL)){
+    db.usuarios.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true});
+    salvar();
+  }
+}
+carregar();
+
+let sessao = JSON.parse(sessionStorage.getItem('ec_sessao') || 'null');
+
+/* ============ UI ============ */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function showLogin(){ document.getElementById('modalLogin').classList.add('show'); }
+function showCadastro(){ document.getElementById('modalCadastro').classList.add('show'); }
+function showCadastroMassa(){ document.getElementById('modalMassa').classList.add('show'); }
+function fecharModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function renderUserArea(){
+  const el = document.getElementById('userArea');
+  if(sessao){
+    el.innerHTML = `
+      <span class="badge ${sessao.admin?'admin':''}">${sessao.admin?'ADMIN':'Participante'}</span>
+      <span>👋 ${sessao.nome}</span>
+      <button class="ghost small" onclick="logout()">Sair</button>`;
+    document.getElementById('postitToolbar').style.display='flex';
+    document.getElementById('adminPanel').style.display = sessao.admin?'block':'none';
+    if(sessao.admin) renderUsers();
+  } else {
+    el.innerHTML = `<button onclick="showLogin()">Entrar</button>`;
+    document.getElementById('postitToolbar').style.display='none';
+    document.getElementById('adminPanel').style.display='none';
+  }
+}
+
+function fazerLogin(){
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const senha = document.getElementById('loginSenha').value;
+  const u = db.usuarios.find(x=>x.email.toLowerCase()===email && x.senha===senha);
+  if(!u){ toast('E-mail ou senha incorretos'); return; }
+  sessao = {nome:u.nome, email:u.email, admin:!!u.admin};
+  sessionStorage.setItem('ec_sessao', JSON.stringify(sessao));
+  fecharModal('modalLogin');
+  renderUserArea(); renderBoard();
+  toast('Bem-vindo(a), '+u.nome+'!');
+}
+function logout(){ sessao=null; sessionStorage.removeItem('ec_sessao'); renderUserArea(); renderBoard(); }
+
+function cadastrarUm(){
+  const nome = document.getElementById('cadNome').value.trim();
+  const email = document.getElementById('cadEmail').value.trim().toLowerCase();
+  if(!nome || !email){ toast('Preencha nome e e-mail'); return; }
+  if(db.usuarios.some(u=>u.email.toLowerCase()===email)){ toast('E-mail já cadastrado'); return; }
+  db.usuarios.push({nome, email, senha:SENHA_PADRAO});
+  salvar(); fecharModal('modalCadastro');
+  document.getElementById('cadNome').value=''; document.getElementById('cadEmail').value='';
+  renderUsers(); toast('Cadastrado com sucesso!');
+}
+
+function cadastrarMassa(){
+  const txt = document.getElementById('massaText').value.trim();
+  if(!txt){ toast('Cole os dados primeiro'); return; }
+  let add=0, skip=0;
+  txt.split(/\n+/).forEach(linha=>{
+    const partes = linha.split(',').map(s=>s.trim());
+    if(partes.length<2) return;
+    const [nome,email] = partes;
+    if(!nome||!email) return;
+    if(db.usuarios.some(u=>u.email.toLowerCase()===email.toLowerCase())){ skip++; return; }
+    db.usuarios.push({nome, email:email.toLowerCase(), senha:SENHA_PADRAO});
+    add++;
+  });
+  salvar(); fecharModal('modalMassa');
+  document.getElementById('massaText').value='';
+  renderUsers();
+  toast(`${add} cadastrado(s), ${skip} ignorado(s)`);
+}
+
+function renderUsers(){
+  const el = document.getElementById('usersList');
+  el.innerHTML = db.usuarios.map((u,i)=>`
+    <div class="user-row">
+      <span>${u.admin?'👑 ':''}<strong>${u.nome}</strong> — ${u.email}</span>
+      ${!u.admin?`<button class="small danger" onclick="removerUsuario(${i})">Remover</button>`:''}
+    </div>`).join('');
+}
+function removerUsuario(i){
+  if(!sessao?.admin) return;
+  if(!confirm('Remover '+db.usuarios[i].nome+'?')) return;
+  db.usuarios.splice(i,1); salvar(); renderUsers();
+}
+function exportarDados(){
+  const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download='escolas-criativas-dados.json'; a.click();
+}
+
+/* ============ POST-ITS ============ */
+let postitEditando = null;
+let corAtual = 'amarelo';
+
+function abrirPostit(cor, id=null){
+  if(!sessao){ toast('Faça login para criar post-its'); return; }
+  corAtual = cor;
+  postitEditando = id;
+  document.getElementById('postitTitulo').textContent = id?'Editar post-it':'Novo post-it '+cor;
+  document.getElementById('rowCategoria').style.display = (cor==='amarelo')?'block':'none';
+  document.getElementById('rowLink').style.display = (cor==='magenta')?'block':'none';
+  document.getElementById('rowArquivo').style.display = (cor==='magenta')?'block':'none';
+  document.getElementById('postitConteudo').value='';
+  document.getElementById('postitLink').value='';
+  document.getElementById('postitArquivo').value='';
+  if(id){
+    const p = db.postits.find(x=>x.id===id);
+    if(p){
+      document.getElementById('postitConteudo').value = p.conteudo||'';
+      document.getElementById('postitLink').value = p.link||'';
+      if(p.categoria) document.getElementById('postitCategoria').value = p.categoria;
+    }
+  }
+  document.getElementById('modalPostit').classList.add('show');
+}
+
+async function lerArquivo(file){
+  return new Promise(res=>{
+    const r = new FileReader();
+    r.onload = e=>res({nome:file.name, tipo:file.type, dados:e.target.result});
+    r.readAsDataURL(file);
+  });
+}
+
+async function salvarPostit(){
+  const conteudo = document.getElementById('postitConteudo').value.trim();
+  const link = document.getElementById('postitLink').value.trim();
+  const arquivoEl = document.getElementById('postitArquivo');
+  const categoria = document.getElementById('postitCategoria').value;
+  if(!conteudo && !link && !arquivoEl.files[0]){ toast('Preencha algo'); return; }
+
+  let arquivo = null;
+  if(arquivoEl.files[0]){
+    if(arquivoEl.files[0].size > 2*1024*1024){ toast('Arquivo maior que 2MB'); return; }
+    arquivo = await lerArquivo(arquivoEl.files[0]);
+  }
+
+  if(postitEditando){
+    const p = db.postits.find(x=>x.id===postitEditando);
+    if(p){ p.conteudo=conteudo; p.link=link; if(arquivo) p.arquivo=arquivo; if(corAtual==='amarelo') p.categoria=categoria; }
+  } else {
+    db.postits.push({
+      id: Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      cor: corAtual,
+      conteudo, link, arquivo,
+      categoria: corAtual==='amarelo'?categoria:null,
+      autor: sessao.email, autorNome: sessao.nome,
+      x: 20+Math.random()*60, y: 20+Math.random()*40,
+      likes: [], criado: Date.now()
+    });
+  }
+  salvar(); fecharModal('modalPostit'); renderBoard();
+}
+
+function linkificar(t){
+  if(!t) return '';
+  return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank">$1</a>');
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  db.postits.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'postit '+p.cor;
+    el.style.left = p.x+'%';
+    el.style.top = p.y+'%';
+    el.dataset.id = p.id;
+    const meuPostit = sessao && p.autor===sessao.email;
+    const podeApagar = meuPostit || (sessao && sessao.admin);
+
+    let arquivoHtml='';
+    if(p.arquivo){
+      arquivoHtml = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+    }
+    let linkHtml = p.link ? `<div style="margin-top:6px"><a href="${p.link}" target="_blank">🔗 ${p.link.slice(0,40)}${p.link.length>40?'...':''}</a></div>` : '';
+    let catHtml = p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : '';
+    let curtido = sessao && p.likes.includes(sessao.email);
+
+    el.innerHTML = `
+      <div class="meta">
+        <span>${p.autorNome||'?'}</span>
+        ${catHtml}
+      </div>
+      <div class="conteudo">${linkificar(p.conteudo)}${linkHtml}${arquivoHtml}</div>
+      <div class="actions">
+        <button class="small" onclick="curtir('${p.id}')" style="background:${curtido?'#E5197F':'#888'}">❤ <span class="likes">${p.likes.length}</span></button>
+        ${meuPostit?`<button class="small alt" onclick="abrirPostit('${p.cor}','${p.id}')">✏</button>`:''}
+        ${podeApagar?`<button class="small danger" onclick="apagar('${p.id}')">🗑</button>`:''}
+      </div>`;
+    if(meuPostit) tornarArrastavel(el, p);
+    board.appendChild(el);
+  });
+}
+
+function abrirArquivo(id){
+  const p = db.postits.find(x=>x.id===id);
+  if(!p||!p.arquivo) return;
+  const w = window.open('about:blank');
+  if(p.arquivo.tipo.includes('html') || /\.html?$/i.test(p.arquivo.nome)){
+    // decode base64 to text and write
+    const base64 = p.arquivo.dados.split(',')[1];
+    const html = decodeURIComponent(escape(atob(base64)));
+    w.document.open(); w.document.write(html); w.document.close();
+  } else {
+    w.location.href = p.arquivo.dados;
+  }
+}
+
+function curtir(id){
+  if(!sessao){ toast('Faça login'); return; }
+  const p = db.postits.find(x=>x.id===id);
+  if(!p) return;
+  const i = p.likes.indexOf(sessao.email);
+  if(i>=0) p.likes.splice(i,1); else p.likes.push(sessao.email);
+  salvar(); renderBoard();
+}
+
+function apagar(id){
+  const p = db.postits.find(x=>x.id===id);
+  if(!p) return;
+  if(!(p.autor===sessao?.email || sessao?.admin)){ toast('Sem permissão'); return; }
+  if(!confirm('Apagar este post-it?')) return;
+  db.postits = db.postits.filter(x=>x.id!==id);
+  salvar(); renderBoard();
+}
+
+function tornarArrastavel(el, p){
+  let sx,sy,ox,oy,arrastando=false;
+  el.addEventListener('mousedown', e=>{
+    if(e.target.tagName==='BUTTON'||e.target.tagName==='A') return;
+    arrastando=true; sx=e.clientX; sy=e.clientY;
+    const board = document.getElementById('board').getBoundingClientRect();
+    ox = (p.x/100)*board.width; oy = (p.y/100)*board.height;
+    el.style.cursor='grabbing'; el.style.zIndex=100;
+  });
+  document.addEventListener('mousemove', e=>{
+    if(!arrastando) return;
+    const board = document.getElementById('board').getBoundingClientRect();
+    const nx = ((ox + e.clientX - sx)/board.width)*100;
+    const ny = ((oy + e.clientY - sy)/board.height)*100;
+    el.style.left = Math.max(0,Math.min(85,nx))+'%';
+    el.style.top = Math.max(0,Math.min(85,ny))+'%';
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!arrastando) return;
+    arrastando=false; el.style.cursor='grab';
+    const board = document.getElementById('board').getBoundingClientRect();
+    p.x = parseFloat(el.style.left); p.y = parseFloat(el.style.top);
+    salvar();
+  });
+  // touch
+  el.addEventListener('touchstart', e=>{
+    if(e.target.tagName==='BUTTON'||e.target.tagName==='A') return;
+    const t = e.touches[0]; arrastando=true; sx=t.clientX; sy=t.clientY;
+    const board = document.getElementById('board').getBoundingClientRect();
+    ox = (p.x/100)*board.width; oy = (p.y/100)*board.height;
+  },{passive:true});
+  el.addEventListener('touchmove', e=>{
+    if(!arrastando) return;
+    const t = e.touches[0];
+    const board = document.getElementById('board').getBoundingClientRect();
+    const nx = ((ox + t.clientX - sx)/board.width)*100;
+    const ny = ((oy + t.clientY - sy)/board.height)*100;
+    el.style.left = Math.max(0,Math.min(85,nx))+'%';
+    el.style.top = Math.max(0,Math.min(85,ny))+'%';
+  },{passive:true});
+  el.addEventListener('touchend', ()=>{
+    if(!arrastando) return;
+    arrastando=false;
+    p.x = parseFloat(el.style.left); p.y = parseFloat(el.style.top);
+    salvar();
+  });
+}
+
+renderUserArea();
+renderBoard();
+</script>
+
+</body>
+</html>
