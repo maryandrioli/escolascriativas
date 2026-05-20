@@ -622,7 +622,7 @@ function renderUserArea(){
   if(sessao){
     el.innerHTML = `
       <span class="badge ${sessao.admin?'admin':''}">${sessao.admin?'ADMIN':'Participante'}</span>
-      <span>👋 ${sessao.nome}</span>
+      <span>👋 ${sessao.nome} <button class="ghost small" style="padding:2px 8px;font-size:.7rem" onclick="editarMeuNome()" title="Editar meu nome">✏</button></span>
       <button class="ghost small" onclick="toggleSom()" title="Som">${somLigado?'🔊':'🔇'}</button>
       <button class="ghost small" onclick="logout()">Sair</button>`;
     document.getElementById('postitToolbar').style.display='flex';
@@ -649,6 +649,24 @@ function fazerLogin(){
   iniciarPresenca();
 }
 function logout(){ sessao=null; sessionStorage.removeItem('ec_sessao'); renderUserArea(); renderBoard(); }
+
+function editarMeuNome(){
+  if(!sessao) return;
+  const novo = prompt('Como você prefere ser chamada(o)?', sessao.nome);
+  if(!novo || !novo.trim()) return;
+  const nome = novo.trim();
+  const u = db.usuarios.find(x=>x.email===sessao.email);
+  if(u) u.nome = nome;
+  db.postits.forEach(p=>{
+    if(p.autor===sessao.email) p.autorNome = nome;
+    (p.comentarios||[]).forEach(c=>{ if(c.email===sessao.email) c.autor = nome; });
+  });
+  sessao.nome = nome;
+  sessionStorage.setItem('ec_sessao', JSON.stringify(sessao));
+  salvar();
+  renderUserArea(); renderBoard();
+  toast('Nome atualizado!');
+}
 
 function cadastrarUm(){
   const nome = document.getElementById('cadNome').value.trim();
