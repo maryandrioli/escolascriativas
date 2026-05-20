@@ -671,9 +671,19 @@ let db = {
   postits: []
 };
 
+/* salvar() = estado (usuários + reflexões) no doc escolas/state + cache local */
 function salvar(){
   localStorage.setItem('ec_db', JSON.stringify(db));
-  if(window.fbSave) window.fbSave(db);
+  if(window.fbSaveState) window.fbSaveState({usuarios:db.usuarios, reflexoes:db.reflexoes||{}});
+}
+/* cada post-it é gravado individualmente (sem atropelar os dos colegas) */
+function salvarPostitFB(p){
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbSavePostit) window.fbSavePostit(p);
+}
+function removerPostitFB(id){
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbDeletePostit) window.fbDeletePostit(id);
 }
 function carregar(){
   const s = localStorage.getItem('ec_db');
@@ -682,15 +692,22 @@ function carregar(){
 }
 carregar();
 
-window.aplicarRemoto = function(remoto){
+/* aplica estado remoto (usuários + reflexões), preserva post-its locais */
+window.aplicarEstado = function(remoto){
   if(!remoto) return;
-  db = remoto;
-  if(!db.usuarios) db.usuarios = [];
-  if(!db.postits) db.postits = [];
+  if(remoto.usuarios) db.usuarios = remoto.usuarios;
+  if(remoto.reflexoes) db.reflexoes = remoto.reflexoes;
   garantirParticipantes(db);
   localStorage.setItem('ec_db', JSON.stringify(db));
   window.db = db;
-  try{ renderBoard(); renderUsers(); renderReflexao(); renderNuvem(); }catch(e){}
+  try{ renderUsers(); renderReflexao(); }catch(e){}
+};
+/* aplica lista completa de post-its vinda da coleção board */
+window.aplicarPostits = function(arr){
+  db.postits = Array.isArray(arr) ? arr : [];
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  window.db = db;
+  try{ renderBoard(); renderNuvem(); if(typeof renderCompart==='function') renderCompart(); }catch(e){}
 };
 window.db = db;
 
@@ -748,8 +765,10 @@ function editarMeuNome(){
   const u = db.usuarios.find(x=>x.email===sessao.email);
   if(u) u.nome = nome;
   db.postits.forEach(p=>{
-    if(p.autor===sessao.email) p.autorNome = nome;
-    (p.comentarios||[]).forEach(c=>{ if(c.email===sessao.email) c.autor = nome; });
+    let mud=false;
+    if(p.autor===sessao.email){ p.autorNome = nome; mud=true; }
+    (p.comentarios||[]).forEach(c=>{ if(c.email===sessao.email){ c.autor = nome; mud=true; } });
+    if(mud) salvarPostitFB(p);
   });
   sessao.nome = nome;
   sessionStorage.setItem('ec_sessao', JSON.stringify(sessao));
@@ -855,11 +874,12 @@ async function salvarPostit(){
     arquivo = await lerArquivo(arquivoEl.files[0]);
   }
 
+  let alvo;
   if(postitEditando){
     const p = db.postits.find(x=>x.id===postitEditando);
-    if(p){ p.conteudo=conteudo; p.link=link; if(arquivo) p.arquivo=arquivo; if(corAtual==='amarelo') p.categoria=categoria; }
+    if(p){ p.conteudo=conteudo; p.link=link; if(arquivo) p.arquivo=arquivo; if(corAtual==='amarelo') p.categoria=categoria; alvo=p; }
   } else {
-    db.postits.push({
+    alvo = {
       id: Date.now()+'-'+Math.random().toString(36).slice(2,7),
       cor: corAtual,
       conteudo, link, arquivo,
@@ -868,9 +888,11 @@ async function salvarPostit(){
       sala: salaAtual,
       x: 20+Math.random()*60, y: 20+Math.random()*40,
       likes: [], comentarios: [], lidoPor: [], criado: Date.now()
-    });
+    };
+    db.postits.push(alvo);
   }
-  salvar(); fecharModal('modalPostit'); renderBoard();
+  if(alvo) salvarPostitFB(alvo);
+  fecharModal('modalPostit'); renderBoard();
 }
 
 function linkificar(t){
@@ -880,12 +902,13 @@ function linkificar(t){
 
 function marcarLeitura(){
   if(!sessao) return;
+  // apenas local (evita tempestade de gravações no Firestore)
   db.postits.forEach(p=>{
     if(p.autor===sessao.email) return;
     p.lidoPor = p.lidoPor || [];
     if(!p.lidoPor.includes(sessao.email)) p.lidoPor.push(sessao.email);
   });
-  salvar();
+  localStorage.setItem('ec_db', JSON.stringify(db));
 }
 
 let salaAtual = parseInt(localStorage.getItem('ec_sala')||'1');
@@ -993,7 +1016,7 @@ function curtir(id){
   if(!p) return;
   const i = p.likes.indexOf(sessao.email);
   if(i>=0) p.likes.splice(i,1); else p.likes.push(sessao.email);
-  salvar(); renderBoard();
+  salvarPostitFB(p); renderBoard();
 }
 
 function apagar(id){
@@ -1002,7 +1025,7 @@ function apagar(id){
   if(!(p.autor===sessao?.email || sessao?.admin)){ toast('Sem permissão'); return; }
   if(!confirm('Apagar este post-it?')) return;
   db.postits = db.postits.filter(x=>x.id!==id);
-  salvar(); renderBoard();
+  removerPostitFB(id); renderBoard();
 }
 
 function tornarArrastavel(el, p){
@@ -1027,7 +1050,7 @@ function tornarArrastavel(el, p){
     arrastando=false; el.style.cursor='grab';
     const board = document.getElementById('board').getBoundingClientRect();
     p.x = parseFloat(el.style.left); p.y = parseFloat(el.style.top);
-    salvar();
+    salvarPostitFB(p);
   });
   // touch
   el.addEventListener('touchstart', e=>{
@@ -1049,7 +1072,7 @@ function tornarArrastavel(el, p){
     if(!arrastando) return;
     arrastando=false;
     p.x = parseFloat(el.style.left); p.y = parseFloat(el.style.top);
-    salvar();
+    salvarPostitFB(p);
   });
 }
 
@@ -1060,7 +1083,7 @@ function comentar(id){
   const p = db.postits.find(x=>x.id===id);
   p.comentarios = p.comentarios || [];
   p.comentarios.push({autor:sessao.nome, email:sessao.email, texto:t.value.trim(), t:Date.now()});
-  salvar(); renderBoard();
+  salvarPostitFB(p); renderBoard();
 }
 
 /* ===== AVATAR ===== */
@@ -1145,7 +1168,7 @@ function comentarLista(id){
   const p = db.postits.find(x=>x.id===id);
   p.comentarios = p.comentarios||[];
   p.comentarios.push({autor:sessao.nome,email:sessao.email,texto:t.value.trim(),t:Date.now()});
-  salvar(); bip(700,60); renderBoard();
+  salvarPostitFB(p); bip(700,60); renderBoard();
 }
 
 /* ===== TUTORIAL ===== */
@@ -1468,7 +1491,7 @@ setInterval(atualizarNotif, 8000);
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNZKwXZ7QSgqhNoam071WokVDO8oePMvI",
@@ -1481,44 +1504,51 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const fdb = getFirestore(app);
-const ref = doc(fdb, "escolas", "state");
+const stateRef = doc(fdb, "escolas", "state");
+const boardCol = collection(fdb, "board");
 
-let ignorarProximo = false;
-
-window.fbSave = async function(dbObj){
+/* ---- ESTADO (usuários + reflexões) ---- */
+window.fbSaveState = async function(estado){
   try{
-    ignorarProximo = true;
-    await setDoc(ref, { json: JSON.stringify(dbObj), atualizado: Date.now() });
-  }catch(e){ console.warn("fbSave erro", e); }
+    await setDoc(stateRef, { json: JSON.stringify(estado), atualizado: Date.now() }, { merge:true });
+  }catch(e){ console.warn("fbSaveState erro", e); }
 };
-
-let dbAnterior = null;
-onSnapshot(ref, snap => {
-  if(!snap.exists()) {
-    if(window.fbSave && window.db) window.fbSave(window.db);
-    return;
-  }
-  if(ignorarProximo){ ignorarProximo=false; return; }
+onSnapshot(stateRef, snap => {
+  if(!snap.exists()) return;
   const data = snap.data();
   if(data && data.json){
-    try{
-      const remoto = JSON.parse(data.json);
-      const antes = dbAnterior;
-      const depois = remoto;
-      if(antes && window.bip){
-        const cAntes = (antes.postits||[]).reduce((s,p)=>s+(p.comentarios||[]).length,0);
-        const cDepois = (depois.postits||[]).reduce((s,p)=>s+(p.comentarios||[]).length,0);
-        const lAntes = (antes.postits||[]).reduce((s,p)=>s+(p.likes||[]).length,0);
-        const lDepois = (depois.postits||[]).reduce((s,p)=>s+(p.likes||[]).length,0);
-        if(cDepois>cAntes) window.bip(700,90);
-        else if(lDepois>lAntes) window.bip(900,50);
-        else if((depois.postits||[]).length>(antes.postits||[]).length) window.bip(550,70);
-      }
-      dbAnterior = remoto;
-      window.aplicarRemoto(remoto);
-    }catch(e){ console.warn("parse erro", e); }
+    try{ window.aplicarEstado(JSON.parse(data.json)); }
+    catch(e){ console.warn("parse estado", e); }
   }
-}, err => console.warn("onSnapshot erro", err));
+}, err => console.warn("onSnapshot state erro", err));
+
+/* ---- POST-ITS (um documento por post-it) ---- */
+window.fbSavePostit = async function(p){
+  try{
+    await setDoc(doc(fdb, "board", p.id), JSON.parse(JSON.stringify(p)));
+  }catch(e){ console.warn("fbSavePostit erro", e); }
+};
+window.fbDeletePostit = async function(id){
+  try{ await deleteDoc(doc(fdb, "board", id)); }
+  catch(e){ console.warn("fbDeletePostit erro", e); }
+};
+
+let qtdAnterior = -1, comAnterior = -1, likeAnterior = -1;
+onSnapshot(boardCol, snap => {
+  const arr = [];
+  snap.forEach(d=> arr.push(d.data()));
+  arr.sort((a,b)=>(a.criado||0)-(b.criado||0));
+  // sons de feedback
+  const com = arr.reduce((s,p)=>s+(p.comentarios||[]).length,0);
+  const lk = arr.reduce((s,p)=>s+(p.likes||[]).length,0);
+  if(window.bip && qtdAnterior>=0){
+    if(com>comAnterior) window.bip(700,90);
+    else if(lk>likeAnterior) window.bip(900,50);
+    else if(arr.length>qtdAnterior) window.bip(550,70);
+  }
+  qtdAnterior=arr.length; comAnterior=com; likeAnterior=lk;
+  window.aplicarPostits(arr);
+}, err => console.warn("onSnapshot board erro", err));
 
 /* Presença */
 const presencaCol = collection(fdb, "presenca");
