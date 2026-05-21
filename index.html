@@ -465,6 +465,23 @@
       <button class="ghost" onclick="fecharModal('modalLogin')">Cancelar</button>
       <button onclick="fazerLogin()">Entrar</button>
     </div>
+    <div style="text-align:center;margin-top:12px;font-size:.85rem">
+      Ainda não tem acesso? <a href="#" onclick="fecharModal('modalLogin');document.getElementById('modalRegistro').classList.add('show');return false;" style="color:var(--magenta);font-weight:600">Criar acesso</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalRegistro">
+  <div class="modal-content">
+    <h3>Criar acesso</h3>
+    <p style="font-size:.85rem;color:#666">Preencha seus dados. O administrador precisa aprovar antes do primeiro login.</p>
+    <div class="form-row"><label>Nome</label><input id="regNome"/></div>
+    <div class="form-row"><label>E-mail</label><input type="email" id="regEmail"/></div>
+    <div class="form-row"><label>Crie uma senha</label><input type="password" id="regSenha"/></div>
+    <div class="form-actions">
+      <button class="ghost" onclick="fecharModal('modalRegistro')">Cancelar</button>
+      <button onclick="autoCadastrar()">Solicitar acesso</button>
+    </div>
   </div>
 </div>
 
@@ -525,9 +542,9 @@
       <input id="postitLink" placeholder="https://..."/>
     </div>
     <div class="form-row" id="rowArquivo" style="display:none">
-      <label>Arquivo (opcional — máx. 500KB)</label>
-      <input type="file" id="postitArquivo" accept=".html,.htm,image/jpeg,image/jpg,image/png,image/gif,.pdf,.txt"/>
-      <div class="login-hint">Aceita HTML, JPG, PNG, GIF, PDF e TXT. Para arquivos maiores, use link externo.</div>
+      <label>Arquivo HTML (opcional — máx. 200KB)</label>
+      <input type="file" id="postitArquivo" accept=".html,.htm"/>
+      <div class="login-hint">Aceita apenas .html (abre em nova aba ao clicar). Para outros formatos, use link.</div>
     </div>
     <div class="form-actions">
       <button class="ghost" onclick="fecharModal('modalPostit')">Cancelar</button>
@@ -671,10 +688,12 @@ let db = {
   postits: []
 };
 
-/* salvar() = estado (usuários + reflexões) no doc escolas/state + cache local */
+/* chave segura de email (igual à do Firestore) */
+function emailKey(e){ return (e||'').toLowerCase().replace(/[^a-z0-9]/gi,'_'); }
+
+/* salvar() = apenas cache local (cada coisa tem sua função própria de gravação) */
 function salvar(){
   localStorage.setItem('ec_db', JSON.stringify(db));
-  if(window.fbSaveState) window.fbSaveState({usuarios:db.usuarios, reflexoes:db.reflexoes||{}});
 }
 /* cada post-it é gravado individualmente (sem atropelar os dos colegas) */
 function salvarPostitFB(p){
@@ -688,19 +707,38 @@ function removerPostitFB(id){
 function carregar(){
   const s = localStorage.getItem('ec_db');
   if(s) db = JSON.parse(s);
-  garantirParticipantes(db);
+  if(!db.usuariosRemotos) db.usuariosRemotos = [];
+  mesclarUsuarios();
 }
 carregar();
 
-/* aplica estado remoto (usuários + reflexões), preserva post-its locais */
-window.aplicarEstado = function(remoto){
-  if(!remoto) return;
-  if(remoto.usuarios) db.usuarios = remoto.usuarios;
-  if(remoto.reflexoes) db.reflexoes = remoto.reflexoes;
-  garantirParticipantes(db);
+/* mescla usuários embutidos + admin + cadastrados remotamente; aplica em db.usuarios */
+function mesclarUsuarios(){
+  const base = [];
+  base.push({nome:'Admin (Mary)', email:ADMIN_EMAIL, senha:ADMIN_SENHA, admin:true, aprovado:true});
+  PARTICIPANTES.forEach(([nome,email])=> base.push({nome, email:email.toLowerCase(), senha:SENHA_PARTICIPANTE, aprovado:true}));
+  (db.usuariosRemotos||[]).forEach(u=>{
+    const i = base.findIndex(x=>x.email.toLowerCase()===(u.email||'').toLowerCase());
+    if(i>=0) base[i] = {...base[i], ...u}; else base.push(u);
+  });
+  db.usuarios = base;
+}
+
+/* aplica lista de usuários vinda da coleção (cadastros ao vivo + autocadastros) */
+window.aplicarUsuarios = function(arr){
+  db.usuariosRemotos = Array.isArray(arr)?arr:[];
+  mesclarUsuarios();
   localStorage.setItem('ec_db', JSON.stringify(db));
   window.db = db;
-  try{ renderUsers(); renderReflexao(); }catch(e){}
+  try{ renderUsers(); }catch(e){}
+};
+
+/* aplica votos das reflexões vindos da coleção */
+window.aplicarReflexoes = function(mapa){
+  db.reflexoes = mapa || {};
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  window.db = db;
+  try{ renderReflexao(); }catch(e){}
 };
 /* aplica lista completa de post-its vinda da coleção board */
 window.aplicarPostits = function(arr){
@@ -747,6 +785,7 @@ function fazerLogin(){
   const senha = document.getElementById('loginSenha').value;
   const u = db.usuarios.find(x=>x.email.toLowerCase()===email && x.senha===senha);
   if(!u){ toast('E-mail ou senha incorretos'); return; }
+  if(u.aprovado===false){ toast('Seu acesso aguarda aprovação do admin.'); return; }
   sessao = {nome:u.nome, email:u.email, admin:!!u.admin};
   sessionStorage.setItem('ec_sessao', JSON.stringify(sessao));
   fecharModal('modalLogin');
@@ -754,6 +793,20 @@ function fazerLogin(){
   toast('Bem-vindo(a), '+u.nome+'!');
   if(!localStorage.getItem('ec_tut_'+u.email)) setTimeout(showTutorial, 600);
   iniciarPresenca();
+}
+
+/* autocadastro — cria usuário aguardando aprovação */
+function autoCadastrar(){
+  const nome = document.getElementById('regNome').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const senha = document.getElementById('regSenha').value.trim();
+  if(!nome||!email||!senha){ toast('Preencha nome, e-mail e senha'); return; }
+  if(db.usuarios.some(u=>u.email.toLowerCase()===email && u.aprovado!==false)){ toast('E-mail já cadastrado. Tente entrar.'); return; }
+  const novo = {nome, email, senha, aprovado:false};
+  if(window.fbSaveUser) window.fbSaveUser(novo);
+  document.getElementById('regNome').value=''; document.getElementById('regEmail').value=''; document.getElementById('regSenha').value='';
+  fecharModal('modalRegistro');
+  toast('Solicitação enviada! Aguarde a aprovação do admin para entrar.');
 }
 function logout(){ sessao=null; sessionStorage.removeItem('ec_sessao'); renderUserArea(); renderBoard(); }
 
@@ -763,7 +816,7 @@ function editarMeuNome(){
   if(!novo || !novo.trim()) return;
   const nome = novo.trim();
   const u = db.usuarios.find(x=>x.email===sessao.email);
-  if(u) u.nome = nome;
+  if(u){ u.nome = nome; if(window.fbSaveUser) window.fbSaveUser({nome, email:sessao.email}); }
   db.postits.forEach(p=>{
     let mud=false;
     if(p.autor===sessao.email){ p.autorNome = nome; mud=true; }
@@ -782,11 +835,11 @@ function cadastrarUm(){
   const email = document.getElementById('cadEmail').value.trim().toLowerCase();
   const senha = document.getElementById('cadSenha').value.trim() || SENHA_PADRAO;
   if(!nome || !email){ toast('Preencha nome e e-mail'); return; }
-  if(db.usuarios.some(u=>u.email.toLowerCase()===email)){ toast('E-mail já cadastrado'); return; }
-  db.usuarios.push({nome, email, senha});
-  salvar(); fecharModal('modalCadastro');
+  if(db.usuarios.some(u=>u.email.toLowerCase()===email && u.aprovado!==false)){ toast('E-mail já cadastrado'); return; }
+  if(window.fbSaveUser) window.fbSaveUser({nome, email, senha, aprovado:true});
+  fecharModal('modalCadastro');
   document.getElementById('cadNome').value=''; document.getElementById('cadEmail').value=''; document.getElementById('cadSenha').value='';
-  renderUsers(); toast('Cadastrado com sucesso!');
+  toast('Cadastrado com sucesso!');
 }
 
 function cadastrarMassa(){
@@ -798,28 +851,46 @@ function cadastrarMassa(){
     if(partes.length<2) return;
     const [nome,email,senhaOpt] = partes;
     if(!nome||!email) return;
-    if(db.usuarios.some(u=>u.email.toLowerCase()===email.toLowerCase())){ skip++; return; }
-    db.usuarios.push({nome, email:email.toLowerCase(), senha: senhaOpt || SENHA_PADRAO});
+    if(db.usuarios.some(u=>u.email.toLowerCase()===email.toLowerCase() && u.aprovado!==false)){ skip++; return; }
+    if(window.fbSaveUser) window.fbSaveUser({nome, email:email.toLowerCase(), senha: senhaOpt || SENHA_PADRAO, aprovado:true});
     add++;
   });
-  salvar(); fecharModal('modalMassa');
+  fecharModal('modalMassa');
   document.getElementById('massaText').value='';
-  renderUsers();
-  toast(`${add} cadastrado(s), ${skip} ignorado(s)`);
+  toast(`${add} enviado(s), ${skip} ignorado(s)`);
+}
+
+function aprovarUsuario(email){
+  const u = db.usuariosRemotos.find(x=>x.email.toLowerCase()===email.toLowerCase());
+  if(u && window.fbSaveUser) window.fbSaveUser({email:u.email, aprovado:true});
+  toast('Acesso aprovado!');
 }
 
 function renderUsers(){
   const el = document.getElementById('usersList');
-  el.innerHTML = db.usuarios.map((u,i)=>`
+  if(!el) return;
+  const pendentes = (db.usuariosRemotos||[]).filter(u=>u.aprovado===false);
+  let pendHtml = '';
+  if(pendentes.length){
+    pendHtml = `<div style="background:#fff7e6;border:1px solid #ffd591;border-radius:8px;padding:8px;margin-bottom:10px">
+      <strong>⏳ Solicitações pendentes (${pendentes.length})</strong>` +
+      pendentes.map(u=>`<div class="user-row">
+        <span><strong>${u.nome}</strong> — ${u.email}</span>
+        <button class="small verde" onclick="aprovarUsuario('${u.email}')">✓ Aprovar</button>
+        <button class="small danger" onclick="removerUsuario('${u.email}')">✕</button>
+      </div>`).join('') + `</div>`;
+  }
+  el.innerHTML = pendHtml + db.usuarios.filter(u=>u.aprovado!==false).map(u=>`
     <div class="user-row">
       <span>${u.admin?'👑 ':''}<strong>${u.nome}</strong> — ${u.email}</span>
-      ${!u.admin?`<button class="small danger" onclick="removerUsuario(${i})">Remover</button>`:''}
+      ${!u.admin?`<button class="small danger" onclick="removerUsuario('${u.email}')">Remover</button>`:''}
     </div>`).join('');
 }
-function removerUsuario(i){
+function removerUsuario(email){
   if(!sessao?.admin) return;
-  if(!confirm('Remover '+db.usuarios[i].nome+'?')) return;
-  db.usuarios.splice(i,1); salvar(); renderUsers();
+  if(!confirm('Remover este acesso?')) return;
+  if(window.fbDeleteUser) window.fbDeleteUser(email);
+  toast('Removido.');
 }
 function exportarDados(){
   const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
@@ -870,8 +941,10 @@ async function salvarPostit(){
 
   let arquivo = null;
   if(arquivoEl.files[0]){
-    if(arquivoEl.files[0].size > 500*1024){ toast('Arquivo maior que 500KB. Prefira link.'); return; }
-    arquivo = await lerArquivo(arquivoEl.files[0]);
+    const f = arquivoEl.files[0];
+    if(!/\.html?$/i.test(f.name)){ toast('Somente arquivos .html são aceitos.'); return; }
+    if(f.size > 200*1024){ toast('Arquivo maior que 200KB. Reduza ou use link.'); return; }
+    arquivo = await lerArquivo(f);
   }
 
   let alvo;
@@ -959,12 +1032,7 @@ function renderBoard(){
 
     let arquivoHtml='';
     if(p.arquivo){
-      const ehImg = (p.arquivo.tipo||'').startsWith('image/') || /\.(jpe?g|png|gif)$/i.test(p.arquivo.nome);
-      if(ehImg){
-        arquivoHtml = `<div style="margin-top:6px"><img src="${p.arquivo.dados}" alt="${p.arquivo.nome}" style="max-width:100%;max-height:120px;border-radius:6px;cursor:zoom-in;display:block" onclick="abrirArquivo('${p.id}')"/></div>`;
-      } else {
-        arquivoHtml = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
-      }
+      arquivoHtml = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📄 ${p.arquivo.nome}</a></div>`;
     }
     let linkHtml = p.link ? `<div style="margin-top:6px"><a href="${p.link}" target="_blank">🔗 ${p.link.slice(0,40)}${p.link.length>40?'...':''}</a></div>` : '';
     let catHtml = p.categoria ? `<span class="cat-tag">${p.categoria}</span>` : '';
@@ -1015,8 +1083,11 @@ function curtir(id){
   const p = db.postits.find(x=>x.id===id);
   if(!p) return;
   const i = p.likes.indexOf(sessao.email);
+  const add = i<0;
   if(i>=0) p.likes.splice(i,1); else p.likes.push(sessao.email);
-  salvarPostitFB(p); renderBoard();
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbLike) window.fbLike(p.id, sessao.email, add); else salvarPostitFB(p);
+  renderBoard();
 }
 
 function apagar(id){
@@ -1082,8 +1153,11 @@ function comentar(id){
   if(!t || !t.value.trim()) return;
   const p = db.postits.find(x=>x.id===id);
   p.comentarios = p.comentarios || [];
-  p.comentarios.push({autor:sessao.nome, email:sessao.email, texto:t.value.trim(), t:Date.now()});
-  salvarPostitFB(p); renderBoard();
+  const c = {autor:sessao.nome, email:sessao.email, texto:t.value.trim(), t:Date.now()};
+  p.comentarios.push(c);
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbComment) window.fbComment(p.id, c); else salvarPostitFB(p);
+  renderBoard();
 }
 
 /* ===== AVATAR ===== */
@@ -1135,10 +1209,7 @@ function renderListaPostits(){
     const podeApagar = meu || sessao?.admin;
     let media='';
     if(p.arquivo){
-      const ehImg = (p.arquivo.tipo||'').startsWith('image/');
-      media = ehImg
-        ? `<img src="${p.arquivo.dados}" onclick="abrirArquivo('${p.id}')"/>`
-        : `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
+      media = `<div style="margin-top:6px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📄 ${p.arquivo.nome}</a></div>`;
     }
     const linkHtml = p.link? `<div style="margin-top:6px"><a href="${p.link}" target="_blank">🔗 ${p.link.slice(0,50)}...</a></div>`:'';
     const cat = p.categoria? `<span class="cat-tag" style="background:rgba(0,0,0,.1);padding:2px 6px;border-radius:8px;font-size:.7rem;margin-left:6px">${p.categoria}</span>`:'';
@@ -1167,8 +1238,11 @@ function comentarLista(id){
   if(!t||!t.value.trim()) return;
   const p = db.postits.find(x=>x.id===id);
   p.comentarios = p.comentarios||[];
-  p.comentarios.push({autor:sessao.nome,email:sessao.email,texto:t.value.trim(),t:Date.now()});
-  salvarPostitFB(p); bip(700,60); renderBoard();
+  const c = {autor:sessao.nome,email:sessao.email,texto:t.value.trim(),t:Date.now()};
+  p.comentarios.push(c);
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbComment) window.fbComment(p.id, c); else salvarPostitFB(p);
+  bip(700,60); renderBoard();
 }
 
 /* ===== TUTORIAL ===== */
@@ -1331,12 +1405,7 @@ function renderCompart(){
   el.innerHTML = lista.map(p=>{
     let media = '';
     if(p.arquivo){
-      const ehImg = (p.arquivo.tipo||'').startsWith('image/') || /\.(jpe?g|png|gif)$/i.test(p.arquivo.nome);
-      if(ehImg){
-        media = `<img src="${p.arquivo.dados}" alt="${p.arquivo.nome}" onclick="abrirArquivo('${p.id}')"/>`;
-      } else {
-        media = `<div style="margin-top:8px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📎 ${p.arquivo.nome}</a></div>`;
-      }
+      media = `<div style="margin-top:8px"><a href="#" onclick="abrirArquivo('${p.id}');return false;">📄 ${p.arquivo.nome}</a></div>`;
     }
     const linkHtml = p.link ? `<div style="margin-top:8px">🔗 <a href="${p.link}" target="_blank">${p.link}</a></div>` : '';
     const dt = p.criado ? new Date(p.criado).toLocaleString('pt-BR') : '';
@@ -1367,7 +1436,7 @@ function renderReflexao(){
   db.reflexoes = db.reflexoes || {};
   el.innerHTML = ITENS_REFLEXAO.map(it=>{
     const votos = db.reflexoes[it.k] || {};
-    const meu = sessao ? votos[sessao.email] : null;
+    const meu = sessao ? votos[emailKey(sessao.email)] : null;
     const counts = {verde:0,amarela:0,vermelha:0};
     Object.values(votos).forEach(v=>{ if(counts[v]!=null) counts[v]++; });
     const total = counts.verde+counts.amarela+counts.vermelha;
@@ -1398,9 +1467,13 @@ function votarReflexao(k,cor){
   if(!sessao){ toast('Faça login para votar'); return; }
   db.reflexoes = db.reflexoes || {};
   db.reflexoes[k] = db.reflexoes[k] || {};
-  if(db.reflexoes[k][sessao.email]===cor) delete db.reflexoes[k][sessao.email];
-  else db.reflexoes[k][sessao.email] = cor;
-  salvar(); renderReflexao();
+  const ek = emailKey(sessao.email);
+  let novoVoto;
+  if(db.reflexoes[k][ek]===cor){ delete db.reflexoes[k][ek]; novoVoto=null; }
+  else { db.reflexoes[k][ek] = cor; novoVoto=cor; }
+  localStorage.setItem('ec_db', JSON.stringify(db));
+  if(window.fbVotoReflexao) window.fbVotoReflexao(k, sessao.email, novoVoto);
+  renderReflexao();
 }
 
 const STOPWORDS = new Set('a o e de da do das dos para por com em no na nos nas um uma uns umas que se os as ao à aos às é são ser está estão estar muito mais menos como qual quais quando onde porque pois mas ou nem também já não sim nosso nossa nossos nossas meu minha seus suas eles elas nós você vocês tem ter há ainda isso isto esse essa este esta esses essas aquele aquela só pelo pela pelos pelas até entre sobre sem'.split(/\s+/));
@@ -1467,7 +1540,7 @@ function iniciarPresenca(){
   const ping = ()=> window.fbPresenca(sessao.email, sessao.nome);
   ping();
   if(presencaTimer) clearInterval(presencaTimer);
-  presencaTimer = setInterval(ping, 25000);
+  presencaTimer = setInterval(ping, 120000);
 }
 function renderPresenca(usuariosOnline){
   const bar = document.getElementById('presencaBar');
@@ -1491,7 +1564,7 @@ setInterval(atualizarNotif, 8000);
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, updateDoc, deleteDoc, deleteField, onSnapshot, collection, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNZKwXZ7QSgqhNoam071WokVDO8oePMvI",
@@ -1504,23 +1577,37 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const fdb = getFirestore(app);
-const stateRef = doc(fdb, "escolas", "state");
 const boardCol = collection(fdb, "board");
+const usuariosCol = collection(fdb, "usuarios");
+const reflexoesCol = collection(fdb, "reflexoes");
+const slug = e => (e||'').toLowerCase().replace(/[^a-z0-9]/gi,'_');
 
-/* ---- ESTADO (usuários + reflexões) ---- */
-window.fbSaveState = async function(estado){
-  try{
-    await setDoc(stateRef, { json: JSON.stringify(estado), atualizado: Date.now() }, { merge:true });
-  }catch(e){ console.warn("fbSaveState erro", e); }
+/* ---- USUÁRIOS (um documento por pessoa) ---- */
+window.fbSaveUser = async function(u){
+  try{ await setDoc(doc(fdb,"usuarios",slug(u.email)), u, {merge:true}); }
+  catch(e){ console.warn("fbSaveUser erro", e); }
 };
-onSnapshot(stateRef, snap => {
-  if(!snap.exists()) return;
-  const data = snap.data();
-  if(data && data.json){
-    try{ window.aplicarEstado(JSON.parse(data.json)); }
-    catch(e){ console.warn("parse estado", e); }
-  }
-}, err => console.warn("onSnapshot state erro", err));
+window.fbDeleteUser = async function(email){
+  try{ await deleteDoc(doc(fdb,"usuarios",slug(email))); }
+  catch(e){ console.warn("fbDeleteUser erro", e); }
+};
+onSnapshot(usuariosCol, snap=>{
+  const arr=[]; snap.forEach(d=>arr.push(d.data()));
+  if(window.aplicarUsuarios) window.aplicarUsuarios(arr);
+}, err=>console.warn("onSnapshot usuarios", err));
+
+/* ---- REFLEXÕES (um documento por dimensão, voto atômico) ---- */
+window.fbVotoReflexao = async function(k, email, cor){
+  try{
+    const ref = doc(fdb,"reflexoes",k);
+    if(cor===null){ await setDoc(ref, {votos:{[slug(email)]: deleteField()}}, {merge:true}); }
+    else { await setDoc(ref, {votos:{[slug(email)]: cor}}, {merge:true}); }
+  }catch(e){ console.warn("fbVotoReflexao erro", e); }
+};
+onSnapshot(reflexoesCol, snap=>{
+  const m={}; snap.forEach(d=>{ m[d.id] = (d.data().votos)||{}; });
+  if(window.aplicarReflexoes) window.aplicarReflexoes(m);
+}, err=>console.warn("onSnapshot reflexoes", err));
 
 /* ---- POST-ITS (um documento por post-it) ---- */
 window.fbSavePostit = async function(p){
@@ -1531,6 +1618,15 @@ window.fbSavePostit = async function(p){
 window.fbDeletePostit = async function(id){
   try{ await deleteDoc(doc(fdb, "board", id)); }
   catch(e){ console.warn("fbDeletePostit erro", e); }
+};
+/* atualizações atômicas — não sobrescrevem o post-it inteiro */
+window.fbLike = async function(id, email, add){
+  try{ await updateDoc(doc(fdb,"board",id), { likes: add?arrayUnion(email):arrayRemove(email) }); }
+  catch(e){ console.warn("fbLike erro", e); }
+};
+window.fbComment = async function(id, comentario){
+  try{ await updateDoc(doc(fdb,"board",id), { comentarios: arrayUnion(comentario) }); }
+  catch(e){ console.warn("fbComment erro", e); }
 };
 
 let qtdAnterior = -1, comAnterior = -1, likeAnterior = -1;
@@ -1563,7 +1659,7 @@ onSnapshot(presencaCol, snap => {
   const online = [];
   snap.forEach(d=>{
     const x = d.data();
-    if(agora - (x.t||0) < 60000) online.push(x);
+    if(agora - (x.t||0) < 150000) online.push(x);
   });
   if(window.renderPresenca) window.renderPresenca(online);
 }, err=>console.warn(err));
